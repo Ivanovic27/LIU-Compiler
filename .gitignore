@@ -5,6 +5,7 @@ antlr4/
 *Lexer.py
 *Parser.py
 *Listener.py
+*.interp
 
 # ANTLR token files
 *.tokens
