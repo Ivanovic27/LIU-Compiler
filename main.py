@@ -1,15 +1,16 @@
 import sys
 from antlr4 import *
-from PatitoLexer import PatitoLexer
-from PatitoParser import PatitoParser
+from grammar.LiuLexer import LiuLexer
+from grammar.LiuParser import LiuParser
 
 
 def main(argv):
     input = FileStream(argv[1])
-    lexer = PatitoLexer(input)
+    lexer = LiuLexer(input)
     stream = CommonTokenStream(lexer)
-    parser = PatitoParser(stream)
+    parser = LiuParser(stream)
     tree = parser.programa()
+
 
 if __name__ == '__main__':
     main(sys.argv)
