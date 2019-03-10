@@ -9,7 +9,7 @@ def main(argv):
     lexer = LiuLexer(input)
     stream = CommonTokenStream(lexer)
     parser = LiuParser(stream)
-    tree = parser.programa()
+    tree = parser.program()
 
 
 if __name__ == '__main__':
