@@ -10,3 +10,11 @@ antlr4 -Dlanguage=Python3 Liu.g4 -o ./grammar
 ```
 python main.py test.iu
 ```
+
+# Commands to run GUI
+````
+antlr4 Liu.g4
+java org.antlr.v4.Tool Liu.g4
+javac Liu*.java
+grun Liu program test.txt -gui
+````
