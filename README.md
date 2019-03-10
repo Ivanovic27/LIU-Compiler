@@ -1,5 +1,6 @@
 # LIU-Compiler
-Compiler for Compiler Design class 2019a
+Compiler of language LIU for Compiler Design class January - May 2019
+Developed with ANTLR4 and Python
 
 # Update Lexer and Parser
 ```
