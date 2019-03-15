@@ -1,37 +1,7 @@
-my awesome list: (0.2, True, False, 'My String', name: 'John', my function(): {}).
-user: 'John'.
-user: (name: 'John').
-user name: 'John'.
-do (user) something: { return (move something). }.
-
-move (value): {}.
-my value: 0.2.
-move (my value).
-
-move (person) (distance) to (direction): {
-  move down().
-  move up().
-  return (distance).
+holi: ''.
+asd (): {
+   my awesome list: 0.
+   pudin: 'hola'.
+   holi: my awesome list.
+   a: holi.
 }.
-move (person) (distance) to (direction: 'north'): {}.
-distance: (10) meters.
-move (user) (distance) to ('south').
-
-remove (person) (prop1, prop2): {}.
-remove (user) ('name', 'email').
-
-remove (person) (props): {}.
-remove (person) (props): {}.
-attributes: ('name', 'email', 'id').
-remove (user) (attributes).
-
-user: (
-   name: 'Peter',
-   something(): {
-      print (user ('name')).
-      something().
-      user something().
-   }
-).
-
-(users) find all (my func (user): { (user) legal. }).
