@@ -3,8 +3,8 @@ from antlr4 import *
 from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
 from semantic_analyzer import SemanticAnalyzer
-# TODO: Check type for parameters.
-# TODO: Give return type.
+
+# TODO: Check type for parameters on execution.
 
 
 def main(argv):
