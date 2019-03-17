@@ -1,7 +1,0 @@
-holi: ''.
-asd (): {
-   my awesome list: 0.
-   pudin: 'hola'.
-   holi: my awesome list.
-   a: holi.
-}.

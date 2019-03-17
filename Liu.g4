@@ -18,8 +18,9 @@ identification
 identification2
   : (Id identification2)?
   ;
+
 terminal_definition
-  : Id Colon basic_literal | definition_function_name Colon function
+  : identification Colon basic_literal
   ;
 execution
   : execution_function_name | if_statement | iterate_statement
@@ -40,7 +41,7 @@ iterate_statement
   : Iterate group group
   ;
 return_statement
-  : Return group
+  : Return basic_literal | Return group
   ;
 definition_function_name
   : identification parameters definition_function_name2 | parameters identification definition_function_name2
@@ -52,10 +53,10 @@ parameters
   : Left_par parameters3 Right_par
   ;
 parameters2
-  : (Coma definition parameters2 | Coma identification parameters2)?
+  : (Coma definition parameters2)?
   ;
 parameters3
-  : (definition parameters2 | identification  parameters2)?
+  : (definition parameters2)?
   ;
 extended_literal
   : literal | group
