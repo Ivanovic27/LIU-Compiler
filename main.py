@@ -4,8 +4,6 @@ from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
 from semantic_analyzer import SemanticAnalyzer
 
-# TODO: Check type for parameters on execution.
-
 
 def main(argv):
     input = FileStream(argv[1])

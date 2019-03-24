@@ -23,22 +23,52 @@ terminal_definition
   : identification Colon basic_literal
   ;
 execution
-  : execution_function_name | if_statement | iterate_statement
+  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | print_execution | read_execution | or_execution | and_execution | execution_function_name
+  ;
+add_execution
+  : Add group
+  ;
+subtract_execution
+  : Subtract group
+  ;
+divide_execution
+  : Divide group
+  ;
+multiply_execution
+  : Multiply group
+  ;
+if_execution
+  : If group group else_execution
+  ;
+else_execution
+  : (Else group | Else if_execution )?
+  ;
+iterate_execution
+  : Iterate group group
+  ;
+not_execution
+  : Not group
+  ;
+equal_execution
+  : Equal group
+  ;
+or_execution
+  : Or group
+  ;
+and_execution
+  : And group
+  ;
+print_execution
+  : Print group
+  ;
+read_execution
+  : Read group
   ;
 execution_function_name
   : identification group execution_function_name2 | group identification execution_function_name2
   ;
 execution_function_name2
   : (identification execution_function_name2 | group execution_function_name2)?
-  ;
-if_statement
-  : If group group else_statement
-  ;
-else_statement
-  : (Else group | Else if_statement )?
-  ;
-iterate_statement
-  : Iterate group group
   ;
 return_statement
   : Return basic_literal | Return group
@@ -89,11 +119,24 @@ Left_bracket    :'{';
 Right_bracket   :'}';
 Dot             :'.';
 Dash            :'-';
-If              :'if';
-Else            :'else';
-Iterate         :'iterate';
-Return          :'return';
-Boolean         :'True'|'False';
+Add             : 'add';
+Subtract        : 'subtract';
+Divide          : 'divide';
+Multiply        : 'multiply';
+If              : 'if';
+Else            : 'else';
+Iterate         : 'iterate';
+Not             : 'not';
+Equal           : 'equal';
+NotEqual        : 'not equal';
+Greater         : 'greater';
+Less            : 'less';
+Print           : 'print';
+Read            : 'read';
+Boolean         : 'True' | 'False';
+Return          : 'return';
+Or              : 'or';
+And             : 'and';
 
 
 Id

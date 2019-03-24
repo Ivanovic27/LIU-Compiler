@@ -6,6 +6,7 @@ antlr4/
 *Parser.py
 *Listener.py
 *.interp
+*.java
 
 # ANTLR token files
 *.tokens

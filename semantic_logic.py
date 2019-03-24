@@ -104,7 +104,7 @@ def definition_variable(self, ctx):
                              "' is not compatible with type " + literal["type"])
     # Add if is not already defined in other part
     if(variable_name not in get_all_variables(self)):
-        get_variables(self)[variable_name] = literal
+        get_variables(self)[variable_name] = {**literal, "name": variable_name}
 
 
 def defintion_parameter(self, ctx):
@@ -123,7 +123,7 @@ def extended_literal(self, ctx):
 
 def group(self, ctx):
     variables = group2(self, ctx.group2())
-    return { "type": "GROUP", "variables": variables }
+    return {"type": "GROUP", "variables": variables}
 
 
 def group2(self, ctx):
@@ -150,7 +150,7 @@ def literal(self, ctx):
 def terminal_definition(self, ctx):
     id = identification(self, ctx.identification())
     info = basic_literal(self, ctx.basic_literal())
-    return { "id": id, "type": info["type"] }
+    return {"id": id, "type": info["type"]}
 
 
 def basic_literal(self, ctx):
@@ -161,11 +161,11 @@ def basic_literal(self, ctx):
             raise ValueError("'" + id + "' is not declared as a definition.")
         return get_all_variables(self)[id]
     elif(ctx.execution() != None):
-        function_name = execution(self, ctx.execution())
+        (function_name, a) = execution(self, ctx.execution())
         exection_type = self.functions[function_name]["type"]
-        return {"type": exection_type}
+        return { "type": exection_type, "name": a }
     elif(ctx.String() != None):
-        return {"type": 'STRING'}
+        return {"type": 'STRING' }
     elif(ctx.Boolean() != None):
         return {"type": 'BOOLEAN'}
     elif(ctx.Number() != None):
@@ -174,33 +174,102 @@ def basic_literal(self, ctx):
 
 def execution(self, ctx):
     if(ctx.execution_function_name() != None):
-        function_name = execution_function_name(
+        (function_name, table) = execution_function_name(
             self, ctx.execution_function_name())
-        # Check that function does not exist
-        if(function_name not in self.functions):
-            raise ValueError("Function " + function_name + "does not exist.")
-    return function_name
+        check(self, table, function_name)
+        return function_name
+    elif (ctx.add_execution() != None):
+        return do_execution(self, ctx.add_execution(), 'sum')
+    elif (ctx.subtract_execution() != None):
+        return do_execution(self, ctx.subtract_execution(), 'subtract')
+    elif (ctx.divide_execution() != None):
+        return do_execution(self, ctx.divide_execution(), 'divide')
+    elif (ctx.multiply_execution() != None):
+        return do_execution(self, ctx.multiply_execution(), 'multiply')
+    elif (ctx.not_execution() != None):
+        return do_execution(self, ctx.not_execution(), 'not')
+    elif (ctx.equal_execution() != None):
+        return do_execution(self, ctx.equal_execution(), 'equal')
+    elif (ctx.or_execution() != None):
+        return do_execution(self, ctx.or_execution(), 'or')
+    elif (ctx.and_execution() != None):
+        return do_execution(self, ctx.and_execution(), 'and')
+    elif (ctx.print_execution() != None):
+        return do_execution(self, ctx.print_execution(), 'print')
+    elif (ctx.read_execution() != None):
+        return do_execution(self, ctx.read_execution(), 'read')
 
+def check(self, table, function_name):
+    for row in table:
+        parameters = self.functions[function_name]["parameters"]
+        a = False
+        if "infiniteParams" in self.functions[function_name]:
+            id = next(iter(parameters))
+            a = parameters[id]["type"] == row["type"]
+        else:
+            for key, parameter in parameters.items():
+                if(parameter["pos"] == row["pos"] and parameter["type"] == row["type"] and parameter["param"] == row["param"]):
+                    a = True
+                    break
+        if(a == False):
+            raise ValueError("Parameters of function '" + function_name + "' do not match")
+    # Check that function does not exist
+    if(function_name not in self.functions):
+        raise ValueError("Function " + function_name + "does not exist.")
+
+def do_execution(self, ctx, id):
+    table = group(self, ctx.group())
+    for row in table["variables"]:
+        row["param"] = 0
+    check(self, table["variables"], id + '(param)')
+    return (id + '(param)', add_cuadruple_infinite(self, id, table))
+
+def add_cuadruple_infinite(self, id, table):
+    temp = table["variables"][0]['name']
+    
+    if(len(table["variables"]) == 1):
+        registry = 't' + str(self.register)
+        self.cuadruples.append((id, temp, None, registry))
+        temp = registry
+        self.register += 1
+    for row in table["variables"][1:]:
+        registry = 't' + str(self.register)
+        self.cuadruples.append((id, temp, row['name'], registry))
+        temp = registry
+        self.register += 1
+    return temp
 
 def execution_function_name(self, ctx):
-    rest_name = execution_function_name2(self, ctx.execution_function_name2())
+    parameters_counter = 0
+    table = group(self, ctx.group())
+    table = table["variables"]
+    for row in table:
+        row["param"] = parameters_counter
+    (rest_name, rest_table) = execution_function_name2(
+        self, ctx.execution_function_name2(), parameters_counter + 1)
+    table = table + rest_table
     id = identification(self, ctx.identification())
     if(ctx.children[0] == ctx.identification()):
-        return id + '(param)' + rest_name
+        return (id + '(param)' + rest_name, table)
     else:
-        return '(param)' + id + rest_name
+        return ('(param)' + id + rest_name, table)
 
 
-def execution_function_name2(self, ctx):
-    if(ctx.identification() != None):
-        rest_name = execution_function_name2(self, ctx.execution_function_name2())
+def execution_function_name2(self, ctx, parameters_counter):
+    if(ctx.identification and ctx.identification() != None):
+        (rest_name, table) = execution_function_name2(
+            self, ctx.execution_function_name2(), parameters_counter)
         id = identification(self, ctx.identification())
-        return id + rest_name
+        return (id + rest_name, table)
     elif(ctx.group() != None):
-        rest_name = execution_function_name2(
-            self, ctx.execution_function_name2())
-        return "(param)" + rest_name
-    return ""
+        new_table = group(self, ctx.group())
+        new_table = new_table["variables"]
+        for row in new_table:
+            row["param"] = parameters_counter
+        (rest_name, table) = execution_function_name2(
+            self, ctx.execution_function_name2(), parameters_counter + 1)
+        return ("(param)" + rest_name, table + new_table)
+    return ("", [])
 
 
 # TODO: Clean code
@@ -221,6 +290,8 @@ def definition_function_name(self, ctx):
     return (b, table)
 
 # TODO: Clean code
+
+
 def definition_function_name2(self, ctx, parameters_counter, table):
     if(ctx.parameters() != None):
         table_params = parameters(self, ctx.parameters())
@@ -244,7 +315,8 @@ def parameters2(self, ctx, params_table, current_param_position):
             "type": type["type"],
             "pos": current_param_position
         }
-        parameters2(self, ctx.parameters2(), params_table, current_param_position + 1)
+        parameters2(self, ctx.parameters2(), params_table,
+                    current_param_position + 1)
 
 
 def parameters3(self, ctx):
