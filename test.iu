@@ -1,5 +1,10 @@
-a(b: ''): {
-  return 0.
-}.
-d: '1'.
-a(d).
+my user: 'A'.
+my other user: 'B'.
+x: 100.
+y: 50.
+z: 200.
+
+not(equal(my user, my other user)).
+divide(subtract(add(x, y, multiply(z, x)), z), y).
+print(my user, my other user).
+read().
