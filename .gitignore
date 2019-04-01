@@ -1,5 +1,6 @@
 # ANTLR4 Library
 antlr4/
+grammar/
 
 # ANTLR generated files
 *Lexer.py

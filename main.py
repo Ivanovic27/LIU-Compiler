@@ -6,7 +6,8 @@ from semantic_analyzer import SemanticAnalyzer
 
 
 def main(argv):
-    input = FileStream(argv[1])
+    file_name = argv[1]
+    input = FileStream(file_name)
     lexer = LiuLexer(input)
     stream = CommonTokenStream(lexer)
     parser = LiuParser(stream)
