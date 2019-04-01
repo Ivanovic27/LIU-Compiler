@@ -4,6 +4,10 @@ from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
 from semantic_analyzer import SemanticAnalyzer
 
+# TODO: Change Variables and Functions to Classes.
+# TODO: Change equal for only 2 parameters.
+# TODO: Change print cuadruples to have only left.
+
 
 def main(argv):
     file_name = argv[1]

@@ -4,6 +4,3 @@ class Cuadruple:
         self.left = left
         self.right = right
         self.temporal = temporal
-
-    def __str__(self):
-        return self.operator + ": " + self.left + ", " + self.right + " --> " + self.temporal

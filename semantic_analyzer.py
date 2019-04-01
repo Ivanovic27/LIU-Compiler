@@ -3,6 +3,7 @@ import yaml
 from preloaded_data import (initial_functions, initial_scope)
 from beautifultable import BeautifulTable
 from semantic_logic import *
+import copy
 
 
 class LiuGrammarListener(ParseTreeListener):
@@ -20,7 +21,8 @@ class SemanticAnalyzer(LiuGrammarListener):
     def enterProgram(self, ctx):
         self.function_code(ctx.function_code())
 
-        self.print_functions()
+        self.print_function("global-function")
+        self.print_function("a(param)do(param)")
         self.print_cuadruples()
 
     def print_cuadruples(self):
@@ -34,8 +36,8 @@ class SemanticAnalyzer(LiuGrammarListener):
     def get_current_function(self):
         return self.functions[self.current_scope]
 
-    def print_functions(self):
-        print(yaml.dump(self.functions))
+    def print_function(self, function_name):
+        print(yaml.dump(self.functions[function_name]))
 
     def get_variables(self):
         return self.functions[self.current_scope]["variables"]
@@ -50,7 +52,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         scope_variables = self.get_variables()
         params_variables = self.get_parameters()
         global_variables = self.get_global_variables()
-        return {**scope_variables, **params_variables, **global_variables}
+        return {**global_variables, **params_variables, **scope_variables}
 
     def identification(self, ctx):
         return get_id(self, ctx)

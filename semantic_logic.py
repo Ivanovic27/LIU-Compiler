@@ -1,6 +1,6 @@
 from preloaded_data import mapping_functions
 from Cuadruple import Cuadruple
-
+import copy
 
 def get_id(self, ctx):
     id = ctx.Id()
@@ -88,24 +88,23 @@ def create_function(self, ctx, function_name, parameters):
 
 
 def create_variable(self, variable_name, literal):
-    # Check if variable is declared globally
-    if variable_name in self.get_global_variables():
-        raise ValueError("Definition '" + variable_name +
-                         "' is already globally declared.")
-    # Check if the new variable type is different from the one already defined
-    if variable_name in self.get_all_variables():
-        if self.get_all_variables()[variable_name]["type"] != literal["type"]:
-            raise ValueError("Type of definition '" + variable_name +
-                             "' is not compatible with type " + literal["type"])
+    check_variable_type(self, variable_name, literal)
     # Add if is not already defined in other part
     if variable_name not in self.get_all_variables():
         self.get_variables()[variable_name] = {
             **literal, "name": variable_name}
 
+def check_variable_type(self, variable_name, literal):
+    # Check if the new variable type is different from the one already defined
+    if variable_name in self.get_all_variables():
+        if self.get_all_variables()[variable_name]["type"] != literal["type"]:
+            raise ValueError("Type of definition '" + variable_name +
+                             "' is not compatible with type " + literal["type"])
 
 def get_group_variables(self, ctx, current_position=0):
     if ctx.literal() != None:
         item = self.literal(ctx.literal())
+        item = copy.deepcopy(item)
         item["pos"] = current_position
         rest_items = get_group_variables(
             self, ctx.group3(), current_position + 1)
