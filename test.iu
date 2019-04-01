@@ -5,14 +5,14 @@ y: 50.
 z: 200.
 z: add(z, y).
 t: (0, 1, 2, 3).
-a (x: '', y: '') do (z: ''): {
+(x: '', y: '') do (z: ''): {
   z: ''.
   t: ().
   return z.
 }.
 w: ().
 
-a (my user, my user) do (my user).
+(my user, my user) do (my user).
 not(equal(my user, my other user, my other user)).
 divide(subtract(add(x, y, multiply(z, x)), z), y).
 print(my user, my other user, my other user).

@@ -1,61 +1,15 @@
-from antlr4 import *
-import yaml
-from preloaded_data import (initial_functions, initial_scope)
-from beautifultable import BeautifulTable
 from semantic_logic import *
-import copy
-
-
-class LiuGrammarListener(ParseTreeListener):
-    def enterProgram(self, ctx):
-        pass
-
+from LiuListener import LiuGrammarListener
+import globals as gl
+from validations import *
+from utils import list_params_to_dict
 
 class SemanticAnalyzer(LiuGrammarListener):
-    def __init__(self):
-        self.functions = initial_functions
-        self.register = 0
-        self.cuadruples = []
-        self.current_scope = initial_scope
-
     def enterProgram(self, ctx):
         self.function_code(ctx.function_code())
 
-        self.print_function("global-function")
-        self.print_function("a(param)do(param)")
-        self.print_cuadruples()
-
-    def print_cuadruples(self):
-        table = BeautifulTable()
-        table.column_headers = ["operator", "right", "left", "temporal"]
-        for cuadruple in self.cuadruples:
-            table.append_row([cuadruple.operator, cuadruple.left,
-                              cuadruple.right, cuadruple.temporal])
-        print(table)
-
-    def get_current_function(self):
-        return self.functions[self.current_scope]
-
-    def print_function(self, function_name):
-        print(yaml.dump(self.functions[function_name]))
-
-    def get_variables(self):
-        return self.functions[self.current_scope]["variables"]
-
-    def get_global_variables(self):
-        return self.functions["global-function"]["variables"]
-
-    def get_parameters(self):
-        return self.functions[self.current_scope]["parameters"]
-
-    def get_all_variables(self):
-        scope_variables = self.get_variables()
-        params_variables = self.get_parameters()
-        global_variables = self.get_global_variables()
-        return {**global_variables, **params_variables, **scope_variables}
-
     def identification(self, ctx):
-        return get_id(self, ctx)
+        return get_id(ctx)
 
     def function(self, ctx):
         self.function_code(ctx.function_code())
@@ -92,8 +46,8 @@ class SemanticAnalyzer(LiuGrammarListener):
             return_literal = self.group(ctx.group())
         else:
             return_literal = self.basic_literal(ctx.basic_literal())
-        current_function = self.get_current_function()
-        check_return_type(self, current_function, return_literal)
+        current_function = gl.get_current_function()
+        check_return_type(current_function, return_literal)
 
     def definition_function(self, ctx):
         (function_name, parameters) = self.definition_function_name(
@@ -103,7 +57,7 @@ class SemanticAnalyzer(LiuGrammarListener):
     def definition_variable(self, ctx):
         variable_name = self.identification(ctx.identification())
         literal = self.extended_literal(ctx.extended_literal())
-        create_variable(self, variable_name, literal)
+        create_variable(variable_name, literal)
 
     def extended_literal(self, ctx):
         if ctx.literal() != None:
@@ -131,11 +85,11 @@ class SemanticAnalyzer(LiuGrammarListener):
     def basic_literal(self, ctx):
         if ctx.identification() != None:
             id = self.identification(ctx.identification())
-            check_variable_exits(self, id)
-            return self.get_all_variables()[id]
+            check_variable_exits(id)
+            return gl.get_all_variables()[id]
         elif ctx.execution() != None:
             (function_name, registry) = self.execution(ctx.execution())
-            exection_type = self.functions[function_name]["type"]
+            exection_type = gl.functions[function_name]["type"]
             return {"type": exection_type, "name": registry}
         elif ctx.String() != None:
             return {"type": "STRING"}
@@ -148,13 +102,10 @@ class SemanticAnalyzer(LiuGrammarListener):
         return get_execution_data(self, ctx)
 
     def definition_function_name(self, ctx):
-        check_global_function(self)
-        (id, parameters) = self.definition_function_name2(ctx)
-        parameters = list_params_to_dict(self, parameters)
+        check_global_function()
+        (id, parameters) = get_definition_data(self, ctx)
+        parameters = list_params_to_dict(parameters)
         return (id, parameters)
-
-    def definition_function_name2(self, ctx):
-        return get_definition_data(self, ctx)
 
     def parameters(self, ctx):
         return get_parameters_data(self, ctx.parameters3())
