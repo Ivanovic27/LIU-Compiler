@@ -3,9 +3,6 @@ antlr4/
 grammar/
 
 # ANTLR generated files
-*Lexer.py
-*Parser.py
-*Listener.py
 *.interp
 *.java
 
