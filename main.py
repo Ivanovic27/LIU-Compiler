@@ -1,5 +1,5 @@
 import sys
-from antlr4 import *
+from antlr4 import (FileStream, CommonTokenStream, ParseTreeWalker)
 from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
 from SemanticAnalyzer import SemanticAnalyzer
