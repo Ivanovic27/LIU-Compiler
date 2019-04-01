@@ -1,4 +1,4 @@
-from antlr4 import *
+from antlr4 import ParseTreeListener
 
 
 class LiuGrammarListener(ParseTreeListener):
