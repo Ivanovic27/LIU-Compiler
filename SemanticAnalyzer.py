@@ -1,8 +1,10 @@
 from semantic_logic import *
 from LiuListener import LiuGrammarListener
-import globals as gl
+from globals import (global_data as gl, memory)
 from validations import *
 from utils import list_params_to_dict
+from Group import Group
+
 
 class SemanticAnalyzer(LiuGrammarListener):
     def enterProgram(self, ctx):
@@ -37,9 +39,24 @@ class SemanticAnalyzer(LiuGrammarListener):
         if ctx.execution_function_name() != None:
             (function_name, groups) = self.execution_function_name(
                 ctx.execution_function_name())
-            return do_execution(self, groups, function_name, function_name)
+            (new_function_name, parameters) = do_execution(
+                self, groups, function_name)
+            return (new_function_name, None)
+        elif ctx.if_execution() != None:
+            return self.if_execution(ctx.if_execution())
+        elif ctx.iterate_execution() != None:
+            return self.iterate_execution(ctx.iterate_execution())
         else:
             return do_default_execution(self, ctx)
+
+    def if_execution(self, ctx):
+        do_if_execution(self, ctx)
+
+    def else_execution(self, ctx):
+        do_else_execution(self, ctx)
+
+    def iterate_execution(self, ctx):
+        do_iterate_execution(self, ctx)
 
     def return_statement(self, ctx):
         if ctx.group() != None:
@@ -68,7 +85,7 @@ class SemanticAnalyzer(LiuGrammarListener):
 
     def group(self, ctx):
         variables = get_group_variables(self, ctx.group2())
-        return {"type": "GROUP", "variables": variables}
+        return Group("", "GROUP", variables)
 
     def literal(self, ctx):
         if ctx.basic_literal() != None:
@@ -80,23 +97,11 @@ class SemanticAnalyzer(LiuGrammarListener):
     def terminal_definition(self, ctx):
         id = self.identification(ctx.identification())
         info = self.basic_literal(ctx.basic_literal())
-        return {**info, "id": id}
+        info.name = id
+        return info
 
     def basic_literal(self, ctx):
-        if ctx.identification() != None:
-            id = self.identification(ctx.identification())
-            check_variable_exits(id)
-            return gl.get_all_variables()[id]
-        elif ctx.execution() != None:
-            (function_name, registry) = self.execution(ctx.execution())
-            exection_type = gl.functions[function_name]["type"]
-            return {"type": exection_type, "name": registry}
-        elif ctx.String() != None:
-            return {"type": "STRING"}
-        elif ctx.Boolean() != None:
-            return {"type": "BOOLEAN"}
-        elif ctx.Number() != None:
-            return {"type": "NUMBER"}
+        return create_literal(self, ctx)
 
     def execution_function_name(self, ctx):
         return get_execution_data(self, ctx)

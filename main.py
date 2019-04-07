@@ -3,9 +3,9 @@ from antlr4 import (FileStream, CommonTokenStream, ParseTreeWalker)
 from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
 from SemanticAnalyzer import SemanticAnalyzer
-import globals as gl
+from globals import (global_data as gl, memory)
+from preloaded_data import global_function
 
-# TODO: Change Variables and Functions to Classes.
 # TODO: Change equal for only 2 parameters.
 # TODO: Change print cuadruples to have only left.
 # TODO: Merge get_execution_data and get_definition_data
@@ -23,10 +23,11 @@ def main(argv):
     walker = ParseTreeWalker()
     walker.walk(semantic, tree)
 
-    gl.print_function("(param)do(param)")
-    gl.print_function("(param)do(param)")
+    gl.print_function(global_function)
+    gl.print_globals()
+    gl.print_constants()
     gl.print_cuadruples()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv)

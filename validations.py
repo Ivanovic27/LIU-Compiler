@@ -1,11 +1,12 @@
-import globals as gl
+from globals import (global_data as gl)
+from preloaded_data import global_function
 
 
 def check_return_type(function, return_literal):
-    if function["type"] != None and function["type"] != return_literal["type"]:
+    if function.type != None and function.type != return_literal["type"]:
         raise ValueError("Return type of function '" +
-                         gl.current_scope + "' is of type " + function["type"])
-    function["type"] = return_literal["type"]
+                         gl.current_scope + "' is of type " + function.type)
+    function.type = return_literal.type
 
 
 def check_defined_function(function_name):
@@ -16,14 +17,14 @@ def check_defined_function(function_name):
 
 def check_function_exists(table, function_name):
     for row in table:
-        parameters = gl.functions[function_name]["parameters"]
+        parameters = gl.functions[function_name].parameters
         a = False
-        if "infiniteParams" in gl.functions[function_name]:
+        if gl.functions[function_name].infiniteParams:
             id = next(iter(parameters))
-            a = parameters[id]["type"] == row["type"]
+            a = parameters[id].type == row.type
         else:
             for key, parameter in parameters.items():
-                if parameter["pos"] == row["pos"] and parameter["type"] == row["type"] and parameter["param"] == row["param"]:
+                if parameter.pos == row.pos and parameter.type == row.type and parameter.param == row.param:
                     a = True
                     break
         if a == False:
@@ -42,14 +43,14 @@ def check_variable_exits(id):
 
 
 def check_global_function():
-    if gl.current_scope != "global-function":
+    if gl.current_scope != global_function:
         raise ValueError(
-            'Function cannot be declared inside another function')
+            "Function cannot be declared inside another function")
 
 
 def check_variable_type(variable_name, literal):
     # Check if the new variable type is different from the one already defined
     if variable_name in gl.get_all_variables():
-        if gl.get_all_variables()[variable_name]["type"] != literal["type"]:
+        if gl.get_all_variables()[variable_name].type != literal.type:
             raise ValueError("Type of definition '" + variable_name +
-                             "' is not compatible with type " + literal["type"])
+                             "' is not compatible with type " + literal.type)

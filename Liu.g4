@@ -38,13 +38,13 @@ multiply_execution
   : Multiply group
   ;
 if_execution
-  : If group group else_execution
+  : If group function else_execution
   ;
 else_execution
-  : (Else group | Else if_execution )?
+  : (Else function | Else if_execution )?
   ;
 iterate_execution
-  : Iterate group group
+  : Iterate group function
   ;
 not_execution
   : Not group
@@ -125,7 +125,7 @@ Divide          : 'divide';
 Multiply        : 'multiply';
 If              : 'if';
 Else            : 'else';
-Iterate         : 'iterate';
+Iterate         : 'iterate while';
 Not             : 'not';
 Equal           : 'equal';
 NotEqual        : 'not equal';

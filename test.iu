@@ -1,19 +1,12 @@
-my user: 'A'.
-my other user: 'B'.
-x: 100.
-y: 50.
-z: 200.
-z: add(z, y).
-t: (0, 1, 2, 3).
-(x: '', y: '') do (z: ''): {
-  z: ''.
-  t: ().
-  return z.
+a: True.
+b: True.
+z: (1).
+do (something: ''): {
+  return 0.
 }.
-w: ().
+t: do('Charlie').
+iterate while (not(a)) {
+  e: 0.
+}.
 
-(my user, my user) do (my user).
-not(equal(my user, my other user, my other user)).
-divide(subtract(add(x, y, multiply(z, x)), z), y).
-print(my user, my other user, my other user).
-read().
+m: ''.
