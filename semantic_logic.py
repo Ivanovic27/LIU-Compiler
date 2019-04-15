@@ -37,6 +37,7 @@ def create_variable(variable_name, literal):
     if not variable:
         # Add variable if not already declared.
         new_dir = memory.get_last_global()
+        print(literal.virtual_direction)
         memory.global_data.append(None)
         new_variable = Variable(variable_name, literal.type, new_dir)
         gl.add_variable(variable_name, new_variable)
@@ -52,15 +53,20 @@ def get_id(ctx):
     return ""
 
 
-def create_function(self, ctx, function_name, parameters):
+def create_function(self, ctx, function_name, parameters, initial_virtual_direction):
     # Ensure the new function is not already defined
     check_defined_function(function_name)
+    code_virtual_direction = memory.get_last_code()
     # Add the function to the functions table
-    gl.functions[function_name] = Function(function_name, None, {}, parameters)
+    gl.functions[function_name] = Function(
+        function_name, None, {}, parameters, False, initial_virtual_direction, code_virtual_direction)
     # Change scope inside of the new function
+    memory.code_segment.append(Cuadruple('PARAMEND', None, None, None))
     gl.current_scope = function_name
     self.function(ctx.function())
     gl.current_scope = global_function
+    memory.code_segment.append(Cuadruple('ENDPROC', None, None, None))
+    memory.local_segment.clear()
 
 
 def get_group_variables(self, ctx, current_position=0):
@@ -97,6 +103,7 @@ def do_default_execution(self, ctx):
                 self, groups, operation["name"])
             return (function_name, add_cuadruple_infinite(operation["operation"], parameters))
 
+
 def do_if_execution(self, ctx):
     (_, parameters) = do_execution(
         self, [ctx.group()], "if(param)")
@@ -105,6 +112,7 @@ def do_if_execution(self, ctx):
     gl.add_jump(-1)
     self.function(ctx.function())
     self.else_execution(ctx.else_execution())
+
 
 def do_else_execution(self, ctx):
     if ctx.Else() != None:
@@ -118,6 +126,7 @@ def do_else_execution(self, ctx):
             self.if_execution(ctx.if_execution())
     end_dir = gl.pending_jumps.pop()
     memory.fill_jump(end_dir)
+
 
 def do_iterate_execution(self, ctx):
     gl.add_jump()
@@ -133,14 +142,14 @@ def do_iterate_execution(self, ctx):
     memory.fill_jump(begin_dir)
 
 
-
 def get_parameters_data(self, ctx, param_position=0):
     parameters = {}
     if ctx.definition() != None:
-        (name, type) = self.defintion_parameter(ctx.definition())
+        (name, type, direction) = self.defintion_parameter(ctx.definition())
         parameters = get_parameters_data(
             self, ctx.parameters2(), param_position + 1)
         parameters[name] = GroupItem(type.type, param_position)
+        parameters[name].virtual_direction = direction
     return parameters
 
 
@@ -148,17 +157,17 @@ def get_execution_data(self, ctx):
     id = ""
     groups = []
     if ctx.identification() != None or ctx.group() != None:
-        (rest_id, rest_groups) = get_execution_data(self,
-                                                    ctx.execution_function_name2())
-        groups = rest_groups
         if ctx.identification() != None and ctx.children[0] == ctx.identification():
             id += self.identification(ctx.identification())
         if ctx.group() != None:
             id += "(param)"
             group = ctx.group()
-            groups = [group] + groups
+            groups = [group]
         if ctx.identification() != None and ctx.children[0] != ctx.identification():
             id += self.identification(ctx.identification())
+        (rest_id, rest_groups) = get_execution_data(self,
+                                                    ctx.execution_function_name2())
+        groups = groups + rest_groups
         id += rest_id
     return (id, groups)
 
@@ -167,19 +176,20 @@ def get_definition_data(self, ctx):
     id = ""
     parameters = []
     if ctx.identification() != None or ctx.parameters() != None:
-        (rest_id, rest_parameters) = get_definition_data(
-            self, ctx.definition_function_name2())
-        parameters = rest_parameters
         if ctx.identification() != None and ctx.children[0] == ctx.identification():
             id += self.identification(ctx.identification())
         if ctx.parameters() != None:
             id += "(param)"
             parameter = self.parameters(ctx.parameters())
-            parameters = [parameter] + parameters
+            parameters = [parameter]
         if ctx.identification() != None and ctx.children[0] != ctx.identification():
             id += self.identification(ctx.identification())
+        (rest_id, rest_parameters) = get_definition_data(
+            self, ctx.definition_function_name2())
+        parameters = parameters + rest_parameters
         id += rest_id
     return (id, parameters)
+
 
 def create_literal(self, ctx):
     if ctx.identification() != None:
@@ -192,10 +202,12 @@ def create_literal(self, ctx):
         return Variable("", exection_type, virtual_direction)
     elif ctx.String() != None:
         memory.add_constant(ctx.String().getText(), "STRING")
-        return Variable("", "STRING", memory.get_last_constant())
+        return Variable("", "STRING", memory.get_last_constant() - 1)
     elif ctx.Boolean() != None:
         memory.add_constant(ctx.Boolean().getText(), "BOOLEAN")
-        return Variable("", "BOOLEAN", memory.get_last_constant())
+        print(memory.get_last_constant())
+        return Variable("", "BOOLEAN", memory.get_last_constant() - 1)
     elif ctx.Number() != None:
         memory.add_constant(ctx.Number().getText(), "NUMBER")
-        return Variable("", "NUMBER", memory.get_last_constant())
+        print(memory.get_last_constant())
+        return Variable("", "NUMBER", memory.get_last_constant() - 1)

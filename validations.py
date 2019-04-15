@@ -18,16 +18,16 @@ def check_defined_function(function_name):
 def check_function_exists(table, function_name):
     for row in table:
         parameters = gl.functions[function_name].parameters
-        a = False
+        not_match = False
         if gl.functions[function_name].infiniteParams:
             id = next(iter(parameters))
-            a = parameters[id].type == row.type
+            not_match = parameters[id].type == row.type
         else:
             for key, parameter in parameters.items():
                 if parameter.pos == row.pos and parameter.type == row.type and parameter.param == row.param:
-                    a = True
+                    not_match = True
                     break
-        if a == False:
+        if not_match == False:
             raise ValueError("Parameters of function '" +
                              function_name + "' do not match")
     # Check that function does not exist

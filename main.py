@@ -24,6 +24,7 @@ def main(argv):
     walker.walk(semantic, tree)
 
     gl.print_function(global_function)
+    gl.print_function('do(param)(param)')
     gl.print_globals()
     gl.print_constants()
     gl.print_cuadruples()

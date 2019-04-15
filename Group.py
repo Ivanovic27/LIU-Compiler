@@ -2,7 +2,7 @@ from Variable import Variable
 
 
 class Group(Variable):
-    variables: {}
+    variables = []
 
     def __init__(self, name, type, variables):
         self.variables = variables

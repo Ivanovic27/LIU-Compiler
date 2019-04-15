@@ -1,12 +1,10 @@
-a: True.
-b: True.
-z: (1).
-do (something: ''): {
-  return 0.
+move (person: '') (distance: 0) to (direction: ''): {
+  x: False.
+  return x.
 }.
-t: do('Charlie').
-iterate while (not(a)) {
-  e: 0.
+x: 0.
+do (something: 0, t: 'b') (f: 0): {
+  x: 0.
+  return x.
 }.
-
-m: ''.
+t: do(move ('Charlie') (add(5, 6)) to ('left'), 'aaa') (3).

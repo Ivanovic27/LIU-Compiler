@@ -37,11 +37,22 @@ class SemanticAnalyzer(LiuGrammarListener):
 
     def execution(self, ctx):
         if ctx.execution_function_name() != None:
-            (function_name, groups) = self.execution_function_name(
+            (function_name, grps) = self.execution_function_name(
                 ctx.execution_function_name())
-            (new_function_name, parameters) = do_execution(
-                self, groups, function_name)
-            return (new_function_name, None)
+            func = gl.functions[function_name]
+            memory.code_segment.append(
+                Cuadruple('ERA', func.virtual_directon, None, None))
+            (new_function_name, groups) = do_execution(
+                self, grps, function_name)
+            parameters = gl.functions[function_name].parameters
+            for group in groups:
+                for key, parameter in parameters.items():
+                    if parameter.pos == group.pos and parameter.param == group.param:
+                        memory.code_segment.append(
+                            Cuadruple('param', group.virtual_direction, None, parameter.virtual_direction))
+            memory.code_segment.append(
+                Cuadruple('gosub', func.code_direction, None, None))
+            return (new_function_name, func.virtual_directon)
         elif ctx.if_execution() != None:
             return self.if_execution(ctx.if_execution())
         elif ctx.iterate_execution() != None:
@@ -63,13 +74,17 @@ class SemanticAnalyzer(LiuGrammarListener):
             return_literal = self.group(ctx.group())
         else:
             return_literal = self.basic_literal(ctx.basic_literal())
+        memory.code_segment.append(
+            Cuadruple('RETURN', return_literal.virtual_direction, None, None))
         current_function = gl.get_current_function()
         check_return_type(current_function, return_literal)
 
     def definition_function(self, ctx):
+        initial_virtual_direction = memory.get_last_code()
         (function_name, parameters) = self.definition_function_name(
             ctx.definition_function_name())
-        create_function(self, ctx, function_name, parameters)
+        create_function(self, ctx, function_name, parameters,
+                        initial_virtual_direction)
 
     def definition_variable(self, ctx):
         variable_name = self.identification(ctx.identification())
@@ -109,6 +124,21 @@ class SemanticAnalyzer(LiuGrammarListener):
     def definition_function_name(self, ctx):
         check_global_function()
         (id, parameters) = get_definition_data(self, ctx)
+        counter = 0
+        for param in parameters:
+            current_position = 0
+            finish = False
+            while not finish:
+                found_item = False
+                for (key, attr) in param.items():
+                    if attr.pos == current_position:
+                        attr.global_pos = counter
+                        counter += 1
+                        current_position += 1
+                        found_item = True
+                        break
+                if not found_item:
+                    finish = True
         parameters = list_params_to_dict(parameters)
         return (id, parameters)
 
@@ -118,4 +148,7 @@ class SemanticAnalyzer(LiuGrammarListener):
     def defintion_parameter(self, ctx):
         variable_name = self.identification(ctx.identification())
         literal = self.extended_literal(ctx.extended_literal())
-        return (variable_name, literal)
+        new_dir = memory.get_last_local()
+        memory.local_segment.append(None)
+        memory.add_assign(literal.virtual_direction, new_dir)
+        return (variable_name, literal, new_dir)
