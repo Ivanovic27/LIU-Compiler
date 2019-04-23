@@ -94,9 +94,13 @@ class SemanticAnalyzer(LiuGrammarListener):
     def extended_literal(self, ctx):
         if ctx.literal() != None:
             info = self.literal(ctx.literal())
-        elif ctx.group() != None:
-            info = self.group(ctx.group())
+        elif ctx.list1() != None:
+            info = self.list1(ctx.list1())
         return info
+
+    def list1(self, ctx):
+        variables = get_list_variables(self, ctx.list2())
+        return Group("", "LIST", variables)
 
     def group(self, ctx):
         variables = get_group_variables(self, ctx.group2())

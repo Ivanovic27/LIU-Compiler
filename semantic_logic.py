@@ -80,6 +80,25 @@ def get_group_variables(self, ctx, current_position=0):
     return []
 
 
+def get_list_variables(self, ctx, current_position=0, last_item = None):
+    if ctx.literal() != None:
+        item = self.literal(ctx.literal())
+        memory.local_segment.append(None)
+        value_dir = memory.get_last_local()
+        memory.add_assign(item.virtual_direction, value_dir)
+        memory.local_segment.append(None)
+        next_dir = memory.get_last_local()
+        memory.add_assign(None, next_dir)
+        if last_item != None:
+            memory.code_segment.append(Cuadruple('mem',value_dir, None, last_item))
+        new_item = GroupItem(item.type, current_position,
+                             item.virtual_direction)
+        rest_items = get_list_variables(
+            self, ctx.list3(), current_position + 1, next_dir)
+        return [new_item] + rest_items
+    return []
+
+
 def do_execution(self, groups, function_name):
     parameters = []
     for index, group in enumerate(groups):

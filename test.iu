@@ -1,10 +1,1 @@
-move (person: '') (distance: 0) to (direction: ''): {
-  x: False.
-  return x.
-}.
-x: 0.
-do (something: 0, t: 'b') (f: 0): {
-  x: 0.
-  return x.
-}.
-t: do(move ('Charlie') (add(5, 6)) to ('left'), 'aaa') (3).
+z: ['', 4].

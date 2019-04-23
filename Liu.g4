@@ -89,7 +89,7 @@ parameters3
   : (definition parameters2)?
   ;
 extended_literal
-  : literal | group
+  : literal | list1
   ;
 basic_literal
   : String | Number | Boolean | execution | identification
@@ -98,7 +98,7 @@ literal
   : basic_literal | terminal_definition
   ;
 function
-  : Left_bracket function_code Right_bracket
+  : Left_curly_braces function_code Right_curly_braces
   ;
 group
   : Left_par group2 Right_par
@@ -109,14 +109,25 @@ group2
 group3
   : (Coma literal group3)?
   ;
+list1
+  : Left_bracket list2 Right_bracket
+  ;
+list2
+  : (literal list3)?
+  ;
+list3
+  : (Coma literal list3)?
+  ;
 
 
 Colon           :':';
 Coma            :',';
 Left_par        :'(';
 Right_par       :')';
-Left_bracket    :'{';
-Right_bracket   :'}';
+Left_curly_braces    :'{';
+Right_curly_braces   :'}';
+Left_bracket    :'[';
+Right_bracket   :']';
 Dot             :'.';
 Dash            :'-';
 Add             : 'add';
