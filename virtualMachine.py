@@ -1,41 +1,40 @@
 from globals import (global_data as gl, memory)
+from Operator import Operator
 
 
 def execute_next_cuadruple():
-    cuadruple = memory.code_segment[gl.current_cuadruple]
-    recognize_Operation(cuadruple.operator, cuadruple.left,
-                        cuadruple.right, cuadruple.virtual_direction)
     gl.current_cuadruple = gl.current_cuadruple + 1
+    cuadruple = memory.code_segment[gl.current_cuadruple]
+    recognize_Operation(cuadruple.operator, cuadruple.left,cuadruple.right, cuadruple.virtual_direction)
 
 
 def recognize_Operation(operator, left, right, virtual_direction):
-    if operator == '+':
+    if operator == Operator.SUM:
         result = addOperator(left, right, virtual_direction)
-    elif operator == '=':
+    elif operator == Operator.ASSIGN:
         result = assignOperator(left, virtual_direction)
-    elif operator == '*':
+    elif operator == Operator.MULTIPLY:
         result = multiplyOperator(left, right, virtual_direction)
-    elif operator == '/':
+    elif operator == Operator.DIVIDE:
         result = divideOperator(left, right, virtual_direction)
-    elif operator == 'and':
+    elif operator == Operator.AND:
         result = andOperator(left, right, virtual_direction)
-    elif operator == 'or':
+    elif operator == Operator.OR:
         result = orOperator(left, right, virtual_direction)
-    elif operator == 'equal':
+    elif operator == Operator.EQUAL:
         result = equalOperator(left, right, virtual_direction)
-    elif operator == 'not':
+    elif operator == Operator.NOT:
         result = notOperator(left, right, virtual_direction)
-    elif operator == 'read':
+    elif operator == Operator.READ:
         result = readOperator(left, right, virtual_direction)
-    elif operator == 'print':
+    elif operator == Operator.PRINT:
         printOperator(left, right, virtual_direction)
-    if operator != 'print':
+    if operator != Operator.PRINT:
         assignResult(virtual_direction, result)
-    execute_next_cuadruple()
+    if operator != Operator.EOF:
+        execute_next_cuadruple()
 
 #Operations
-
-
 def addOperator(left, right, virtual_direction):
     return float(getValueDirection(left)) + float(getValueDirection(right))
 
