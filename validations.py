@@ -21,7 +21,6 @@ def check_function_exists(table, function_name):
         not_match = False
         if gl.functions[function_name].infiniteParams:
             id = next(iter(parameters))
-            print(parameters[id].type, row.type)
             not_match = parameters[
                 id].type == 'ANY' or row.type == 'ANY' or parameters[
                 id].type == row.type
