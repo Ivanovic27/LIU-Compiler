@@ -9,39 +9,10 @@ from GroupItem import GroupItem
 from utils import list_params_to_dict
 from Operator import Operator
 
-def add_quadruple_infinite(id, table):
-    if len(table) == 0:
-        registry = gl.get_last_data()
-        memory.add_quadruple(id, None, None, registry)
-        temp = registry
-        gl.add_memory(None)
-    else:
-        temp = table[0].virtual_direction
-        if len(table) == 1:
-            registry = gl.get_last_data()
-            memory.add_quadruple(id, temp, None, registry)
-            temp = registry
-            gl.add_memory(None)
-        for row in table[1:]:
-            registry = gl.get_last_data()
-            memory.add_quadruple(id, temp, row.virtual_direction, registry)
-            temp = registry
-            gl.add_memory(None)
-    return temp
-
-
-def add_left_quadruple_infinite(id, table):
-    if len(table) == 0:
-        registry = gl.get_last_data()
-        memory.add_quadruple(id, None, None, registry)
-        gl.add_memory(None)
-    else:
-        for row in table:
-            registry = gl.get_last_data()
-            memory.add_quadruple(id, row.virtual_direction, None, registry)
-            gl.add_memory(None)
-    return registry
-
+types = {
+    "both": gl.add_continuous_quadruples,
+    "left": gl.add_left_quadruples
+}
 
 def create_variable(variable_name, literal):
     check_variable_type(variable_name, literal)
@@ -169,10 +140,6 @@ def do_default_execution(self, ctx):
                 groups = [new_ctx.group()]
             (function_name, parameters) = do_execution(
                 self, groups, operation["name"])
-            types = {
-                "both": add_quadruple_infinite,
-                "left": add_left_quadruple_infinite
-            }
             return (function_name, types[operation["type"]](operation["operation"], parameters))
 
 
@@ -277,9 +244,7 @@ def create_literal(self, ctx):
         return Variable("", "STRING", memory.get_last_constant() - 1)
     elif ctx.Boolean() != None:
         memory.add_constant(ctx.Boolean().getText(), "BOOLEAN")
-        print(memory.get_last_constant())
         return Variable("", "BOOLEAN", memory.get_last_constant() - 1)
     elif ctx.Number() != None:
         memory.add_constant(ctx.Number().getText(), "NUMBER")
-        print(memory.get_last_constant())
         return Variable("", "NUMBER", memory.get_last_constant() - 1)

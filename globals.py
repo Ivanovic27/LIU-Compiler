@@ -50,6 +50,38 @@ class Global:
         else:
             return memory.get_last_local()
 
+    def add_continuous_quadruples(self, id, table):
+        if len(table) == 0:
+            registry = self.get_last_data()
+            memory.add_quadruple(id, None, None, registry)
+            temp = registry
+            self.add_memory(None)
+        else:
+            temp = table[0].virtual_direction
+            if len(table) == 1:
+                registry = self.get_last_data()
+                memory.add_quadruple(id, temp, None, registry)
+                temp = registry
+                self.add_memory(None)
+            for row in table[1:]:
+                registry = self.get_last_data()
+                memory.add_quadruple(id, temp, row.virtual_direction, registry)
+                temp = registry
+                self.add_memory(None)
+        return temp
+
+    def add_left_quadruples(self, id, table):
+        if len(table) == 0:
+            registry = self.get_last_data()
+            memory.add_quadruple(id, None, None, registry)
+            self.add_memory(None)
+        else:
+            for row in table:
+                registry = self.get_last_data()
+                memory.add_quadruple(id, row.virtual_direction, None, registry)
+                self.add_memory(None)
+        return registry
+
     def print_quadruples(self):
         print("*************     CODE            ************")
         table = BeautifulTable()

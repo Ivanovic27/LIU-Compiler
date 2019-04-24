@@ -8,6 +8,7 @@ from Group import Group
 class SemanticAnalyzer(LiuGrammarListener):
     def enterProgram(self, ctx):
         self.function_code(ctx.function_code())
+        memory.add_quadruple(Operator.EOF, None, None, None)
 
     def identification(self, ctx):
         return get_id(ctx)

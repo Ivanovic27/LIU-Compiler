@@ -24,3 +24,4 @@ class Operator(Enum):
     PRINT = 19
     READ = 20
     NEXT = 21
+    EOF = 22

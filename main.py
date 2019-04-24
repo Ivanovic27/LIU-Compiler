@@ -6,7 +6,6 @@ from SemanticAnalyzer import SemanticAnalyzer
 from globals import (global_data as gl, memory)
 from preloaded_data import global_function
 
-# TODO: Change print quadruples to have only left.
 # TODO: Merge get_execution_data and get_definition_data
 # TODO: Move add_quadruple_infinite and create_variable to another file.
 
