@@ -69,3 +69,5 @@ class Memory:
             self.constant_data.append(value[1:-1])
         elif type == "NUMBER":
             self.constant_data.append(float(value))
+        elif type == "NUMBER":
+            self.constant_data.append(value)

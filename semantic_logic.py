@@ -248,3 +248,6 @@ def create_literal(self, ctx):
     elif ctx.Number() != None:
         memory.add_constant(ctx.Number().getText(), "NUMBER")
         return Variable("", "NUMBER", memory.get_last_constant() - 1)
+    elif ctx.Empty() != None:
+        memory.add_constant(None, "ANY")
+        return Variable("", "ANY", memory.get_last_constant() - 1)

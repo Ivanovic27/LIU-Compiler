@@ -63,7 +63,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         else:
             return_literal = self.basic_literal(ctx.basic_literal())
         memory.add_quadruple(
-            "RETURN", return_literal.virtual_direction, None, None)
+            Operator.RETURN, return_literal.virtual_direction, None, None)
         current_function = gl.get_current_function()
         check_return_type(current_function, return_literal)
 

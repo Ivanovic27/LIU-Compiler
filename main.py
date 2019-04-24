@@ -21,7 +21,8 @@ def main(argv):
     semantic = SemanticAnalyzer()
     walker = ParseTreeWalker()
     walker.walk(semantic, tree)
-    execute_next_cuadruple()
+    
+    # execute_next_cuadruple()
     gl.print_function(global_function)
     gl.print_globals()
     gl.print_constants()

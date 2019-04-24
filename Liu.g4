@@ -95,7 +95,7 @@ extended_literal
   : literal | list1
   ;
 basic_literal
-  : String | Number | Boolean | execution | identification
+  : String | Number | Boolean | execution | identification | Empty
   ;
 literal
   : basic_literal | terminal_definition
@@ -122,6 +122,7 @@ list3
   : (Coma literal list3)?
   ;
 
+Empty           :'Empty';
 Colon           :':';
 Coma            :',';
 Left_par        :'(';
