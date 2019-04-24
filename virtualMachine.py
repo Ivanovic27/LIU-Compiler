@@ -27,10 +27,17 @@ def recognize_Operation(operator, left, right, virtual_direction):
         result = readOperator(left, right, virtual_direction)
     elif operator == Operator.PRINT:
         printOperator(left, right, virtual_direction)
-    if operator != Operator.PRINT and operator != Operator.EOF:
+    elif operator == Operator.GOTOF:
+        gotoFOperator(left,right,virtual_direction)
+    elif operator == Operator.GOTO:
+        gotoOperator(left,right,virtual_direction)
+    checkGoTos = operator != Operator.GOTOF and operator != Operator.GOTO
+    if operator != Operator.PRINT and operator != Operator.EOF and checkGoTos: 
         assignResult(virtual_direction, result)
-    if operator != Operator.EOF:
+    if operator != Operator.EOF and checkGoTos:
         gl.current_cuadruple = gl.current_cuadruple + 1
+        execute_next_cuadruple()
+    elif operator != Operator.EOF:
         execute_next_cuadruple()
 
 #Operations
@@ -72,6 +79,16 @@ def readOperator(left, right, virtual_direction):
 
 def printOperator(left, right, virtual_direction):
     print("This is where you print")
+
+def gotoFOperator(left,right,virtual_direction):
+    value = getValueDirection(left)
+    if(False == bool(value)):
+        gl.current_cuadruple = virtual_direction - 400
+    else:
+        gl.current_cuadruple = gl.current_cuadruple + 1
+ 
+def gotoOperator(left,right,virtual_direction):
+    gl.current_cuadruple = virtual_direction - 400
 
 #Get Values from Directions
 
