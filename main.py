@@ -8,7 +8,7 @@ from globals import (global_data as gl, memory)
 from preloaded_data import global_function
 
 # TODO: Merge get_execution_data and get_definition_data
-# TODO: Move add_quadruple_infinite and create_variable to another file.
+# TODO: Move create_variable to another file.
 
 
 def main(argv):
