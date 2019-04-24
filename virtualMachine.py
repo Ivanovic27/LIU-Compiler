@@ -3,10 +3,8 @@ from Operator import Operator
 
 
 def execute_next_cuadruple():
-    gl.current_cuadruple = gl.current_cuadruple + 1
     cuadruple = memory.code_segment[gl.current_cuadruple]
     recognize_Operation(cuadruple.operator, cuadruple.left,cuadruple.right, cuadruple.virtual_direction)
-
 
 def recognize_Operation(operator, left, right, virtual_direction):
     if operator == Operator.SUM:
@@ -32,6 +30,7 @@ def recognize_Operation(operator, left, right, virtual_direction):
     if operator != Operator.PRINT and operator != Operator.EOF:
         assignResult(virtual_direction, result)
     if operator != Operator.EOF:
+        gl.current_cuadruple = gl.current_cuadruple + 1
         execute_next_cuadruple()
 
 #Operations

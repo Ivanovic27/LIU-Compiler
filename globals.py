@@ -9,7 +9,7 @@ class Global:
     current_register = 0
     current_scope = initial_scope
     pending_jumps = []
-    current_cuadruple = -1
+    current_cuadruple = 0
 
     def get_variables(self):
         return self.functions[self.current_scope].variables
