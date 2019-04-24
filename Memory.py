@@ -1,4 +1,5 @@
-from Cuadruple import Cuadruple
+from Quadruple import Quadruple
+from Operator import Operator
 
 
 class Memory:
@@ -36,27 +37,27 @@ class Memory:
         self.code_segment[code_dir].virtual_direction = self.get_last_code(
         ) + offset
 
+    def add_quadruple(self, operator, left, right, direction):
+        self.code_segment.append(
+            Quadruple(operator, left, right, direction))
+
     def add_goto(self, code_dir):
         if code_dir != None:
             code_dir = self.get_code_value(code_dir)
-        self.code_segment.append(
-            Cuadruple("goto", None, None, code_dir))
+        self.add_quadruple(Operator.GOTO, None, None, code_dir)
 
     def add_gotoFalse(self, condition_dir, code_dir=None):
         if code_dir != None:
             code_dir = self.get_code_value(code_dir)
-        self.code_segment.append(
-            Cuadruple("gotoF", condition_dir, None, code_dir))
+        self.add_quadruple(Operator.GOTOF, condition_dir, None, code_dir)
 
     def add_gotoTrue(self, condition_dir, code_dir=None):
         if code_dir != None:
             code_dir = self.get_code_value(code_dir)
-        self.code_segment.append(
-            Cuadruple("gotoT", condition_dir, None, code_dir))
+        self.add_quadruple(Operator.GOTOT, condition_dir, None, code_dir)
 
     def add_assign(self, value_dir, destination_dir):
-        self.code_segment.append(
-            Cuadruple("=", value_dir, None, destination_dir))
+        self.add_quadruple(Operator.ASSIGN, value_dir, None, destination_dir)
 
     def add_constant(self, value, type):
         if type == "BOOLEAN":

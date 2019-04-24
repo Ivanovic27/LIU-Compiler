@@ -38,14 +38,26 @@ class Global:
     def get_current_function(self):
         return self.functions[self.current_scope]
 
-    def print_cuadruples(self):
+    def add_memory(self, value):
+        if self.current_scope == global_function:
+            memory.global_data.append(value)
+        else:
+            memory.local_segment.append(value)
+
+    def get_last_data(self):
+        if self.current_scope == global_function:
+            return memory.get_last_global()
+        else:
+            return memory.get_last_local()
+
+    def print_quadruples(self):
         print("*************     CODE            ************")
         table = BeautifulTable()
         table.column_headers = ["cont", "operator",
-                                "right", "left", "direction"]
-        for index, cuadruple in enumerate(memory.code_segment):
-            table.append_row([memory.get_code_value(index), cuadruple.operator, cuadruple.left,
-                              cuadruple.right, cuadruple.virtual_direction])
+                                "left", "right", "direction"]
+        for index, quadruple in enumerate(memory.code_segment):
+            table.append_row([memory.get_code_value(index), quadruple.operator.name, quadruple.left,
+                              quadruple.right, quadruple.virtual_direction])
         print(table)
 
     def print_constants(self):

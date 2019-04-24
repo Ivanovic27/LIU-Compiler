@@ -23,7 +23,7 @@ terminal_definition
   : identification Colon basic_literal
   ;
 execution
-  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | print_execution | read_execution | or_execution | and_execution | execution_function_name
+  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | print_execution | read_execution | or_execution | and_execution | next_execution | execution_function_name
   ;
 add_execution
   : Add group
@@ -63,6 +63,9 @@ print_execution
   ;
 read_execution
   : Read group
+  ;
+next_execution
+  : group Next
   ;
 execution_function_name
   : identification group execution_function_name2 | group identification execution_function_name2
@@ -119,7 +122,6 @@ list3
   : (Coma literal list3)?
   ;
 
-
 Colon           :':';
 Coma            :',';
 Left_par        :'(';
@@ -148,6 +150,7 @@ Boolean         : 'True' | 'False';
 Return          : 'return';
 Or              : 'or';
 And             : 'and';
+Next            :'next';
 
 
 Id

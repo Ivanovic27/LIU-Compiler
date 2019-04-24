@@ -1,5 +1,4 @@
 from preloaded_data import mapping_functions
-from Cuadruple import Cuadruple
 import copy
 from preloaded_data import global_function
 from globals import (global_data as gl, memory)
@@ -7,28 +6,41 @@ from validations import *
 from Function import Function
 from Variable import Variable
 from GroupItem import GroupItem
+from utils import list_params_to_dict
+from Operator import Operator
 
-
-def add_cuadruple_infinite(id, table):
+def add_quadruple_infinite(id, table):
     if len(table) == 0:
-        registry = memory.get_last_global()
-        memory.code_segment.append(Cuadruple(id, None, None, registry))
+        registry = gl.get_last_data()
+        memory.add_quadruple(id, None, None, registry)
         temp = registry
-        memory.global_data.append(None)
+        gl.add_memory(None)
     else:
         temp = table[0].virtual_direction
         if len(table) == 1:
-            registry = memory.get_last_global()
-            memory.code_segment.append(Cuadruple(id, temp, None, registry))
+            registry = gl.get_last_data()
+            memory.add_quadruple(id, temp, None, registry)
             temp = registry
-            memory.global_data.append(None)
+            gl.add_memory(None)
         for row in table[1:]:
-            registry = memory.get_last_global()
-            memory.code_segment.append(
-                Cuadruple(id, temp, row.virtual_direction, registry))
+            registry = gl.get_last_data()
+            memory.add_quadruple(id, temp, row.virtual_direction, registry)
             temp = registry
-            memory.global_data.append(None)
+            gl.add_memory(None)
     return temp
+
+
+def add_left_quadruple_infinite(id, table):
+    if len(table) == 0:
+        registry = gl.get_last_data()
+        memory.add_quadruple(id, None, None, registry)
+        gl.add_memory(None)
+    else:
+        for row in table:
+            registry = gl.get_last_data()
+            memory.add_quadruple(id, row.virtual_direction, None, registry)
+            gl.add_memory(None)
+    return registry
 
 
 def create_variable(variable_name, literal):
@@ -36,14 +48,50 @@ def create_variable(variable_name, literal):
     variable = gl.get_variable(variable_name)
     if not variable:
         # Add variable if not already declared.
-        new_dir = memory.get_last_global()
-        print(literal.virtual_direction)
-        memory.global_data.append(None)
+        new_dir = gl.get_last_data()
+        gl.add_memory(None)
         new_variable = Variable(variable_name, literal.type, new_dir)
         gl.add_variable(variable_name, new_variable)
         variable = gl.get_variable(variable_name)
     memory.add_assign(literal.virtual_direction, variable.virtual_direction)
 
+
+def definition_function_parameters(self, ctx, parameters):
+    counter = 0
+    new_parameters = []
+    for param in parameters:
+        new_parameters.append(self.parameters(param))
+    for param in new_parameters:
+        current_position = 0
+        finish = False
+        while not finish:
+            found_item = False
+            for (key, attr) in param.items():
+                if attr.pos == current_position:
+                    attr.global_pos = counter
+                    counter += 1
+                    current_position += 1
+                    found_item = True
+                    break
+            if not found_item:
+                finish = True
+    return list_params_to_dict(new_parameters)
+
+
+def do_function_execution(self, ctx):
+    (function_name, grps) = get_execution_data(self, ctx)
+    func = gl.functions[function_name]
+    memory.add_quadruple(Operator.ERA, func.virtual_directon, None, None)
+    (new_function_name, groups) = do_execution(
+        self, grps, function_name)
+    parameters = gl.functions[function_name].parameters
+    for group in groups:
+        for key, parameter in parameters.items():
+            if parameter.pos == group.pos and parameter.param == group.param:
+                memory.add_quadruple(
+                    Operator.PARAM, group.virtual_direction, None, parameter.virtual_direction)
+    memory.add_quadruple(Operator.GOSUB, func.code_direction, None, None)
+    return (new_function_name, func.virtual_directon)
 
 def get_id(ctx):
     id = ctx.Id()
@@ -56,16 +104,14 @@ def get_id(ctx):
 def create_function(self, ctx, function_name, parameters, initial_virtual_direction):
     # Ensure the new function is not already defined
     check_defined_function(function_name)
-    code_virtual_direction = memory.get_last_code()
+    code_virtual_direction = memory.get_last_code() + 1
     # Add the function to the functions table
     gl.functions[function_name] = Function(
         function_name, None, {}, parameters, False, initial_virtual_direction, code_virtual_direction)
-    # Change scope inside of the new function
-    memory.code_segment.append(Cuadruple('PARAMEND', None, None, None))
-    gl.current_scope = function_name
+    memory.add_quadruple(Operator.PARAMEND, None, None, None)
     self.function(ctx.function())
     gl.current_scope = global_function
-    memory.code_segment.append(Cuadruple('ENDPROC', None, None, None))
+    memory.add_quadruple(Operator.ENDPROC, None, None, None)
     memory.local_segment.clear()
 
 
@@ -81,22 +127,25 @@ def get_group_variables(self, ctx, current_position=0):
 
 
 def get_list_variables(self, ctx, current_position=0, last_item = None):
+    first_direction = None
     if ctx.literal() != None:
         item = self.literal(ctx.literal())
-        memory.local_segment.append(None)
-        value_dir = memory.get_last_local()
+        value_dir = gl.get_last_data()
+        gl.add_memory(None)
         memory.add_assign(item.virtual_direction, value_dir)
-        memory.local_segment.append(None)
-        next_dir = memory.get_last_local()
+        next_dir = gl.get_last_data()
+        gl.add_memory(None)
         memory.add_assign(None, next_dir)
-        if last_item != None:
-            memory.code_segment.append(Cuadruple('mem',value_dir, None, last_item))
+        if last_item == None:
+            first_direction = value_dir
+        else:
+            memory.add_quadruple(Operator.MEM, value_dir, None, last_item)
         new_item = GroupItem(item.type, current_position,
                              item.virtual_direction)
-        rest_items = get_list_variables(
+        (_, rest_items) = get_list_variables(
             self, ctx.list3(), current_position + 1, next_dir)
-        return [new_item] + rest_items
-    return []
+        return (first_direction, [new_item] + rest_items)
+    return (first_direction, [])
 
 
 def do_execution(self, groups, function_name):
@@ -120,7 +169,11 @@ def do_default_execution(self, ctx):
                 groups = [new_ctx.group()]
             (function_name, parameters) = do_execution(
                 self, groups, operation["name"])
-            return (function_name, add_cuadruple_infinite(operation["operation"], parameters))
+            types = {
+                "both": add_quadruple_infinite,
+                "left": add_left_quadruple_infinite
+            }
+            return (function_name, types[operation["type"]](operation["operation"], parameters))
 
 
 def do_if_execution(self, ctx):
@@ -130,7 +183,7 @@ def do_if_execution(self, ctx):
     memory.add_gotoFalse(condition_dir)
     gl.add_jump(-1)
     self.function(ctx.function())
-    self.else_execution(ctx.else_execution())
+    self.else_execution(ctx)
 
 
 def do_else_execution(self, ctx):
@@ -142,7 +195,7 @@ def do_else_execution(self, ctx):
         if ctx.function() != None:
             self.function(ctx.function())
         else:
-            self.if_execution(ctx.if_execution())
+            self.if_execution(ctx)
     end_dir = gl.pending_jumps.pop()
     memory.fill_jump(end_dir)
 
@@ -199,7 +252,7 @@ def get_definition_data(self, ctx):
             id += self.identification(ctx.identification())
         if ctx.parameters() != None:
             id += "(param)"
-            parameter = self.parameters(ctx.parameters())
+            parameter = ctx.parameters()
             parameters = [parameter]
         if ctx.identification() != None and ctx.children[0] != ctx.identification():
             id += self.identification(ctx.identification())

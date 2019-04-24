@@ -6,10 +6,9 @@ from SemanticAnalyzer import SemanticAnalyzer
 from globals import (global_data as gl, memory)
 from preloaded_data import global_function
 
-# TODO: Change equal for only 2 parameters.
-# TODO: Change print cuadruples to have only left.
+# TODO: Change print quadruples to have only left.
 # TODO: Merge get_execution_data and get_definition_data
-# TODO: Move add_cuadruple_infinite and create_variable to another file.
+# TODO: Move add_quadruple_infinite and create_variable to another file.
 
 
 def main(argv):
@@ -26,7 +25,7 @@ def main(argv):
     gl.print_function(global_function)
     gl.print_globals()
     gl.print_constants()
-    gl.print_cuadruples()
+    gl.print_quadruples()
 
 
 if __name__ == "__main__":

@@ -21,10 +21,13 @@ def check_function_exists(table, function_name):
         not_match = False
         if gl.functions[function_name].infiniteParams:
             id = next(iter(parameters))
-            not_match = parameters[id].type == row.type
+            print(parameters[id].type, row.type)
+            not_match = parameters[
+                id].type == 'ANY' or row.type == 'ANY' or parameters[
+                id].type == row.type
         else:
             for key, parameter in parameters.items():
-                if parameter.pos == row.pos and parameter.type == row.type and parameter.param == row.param:
+                if parameter.type == 'ANY' or row.type == 'ANY' or parameter.pos == row.pos and parameter.type == row.type and parameter.param == row.param:
                     not_match = True
                     break
         if not_match == False:
@@ -51,6 +54,7 @@ def check_global_function():
 def check_variable_type(variable_name, literal):
     # Check if the new variable type is different from the one already defined
     if variable_name in gl.get_all_variables():
-        if gl.get_all_variables()[variable_name].type != literal.type:
-            raise ValueError("Type of definition '" + variable_name +
-                             "' is not compatible with type " + literal.type)
+        if gl.get_all_variables()[variable_name].type != 'ANY' and literal.type != 'ANY':
+            if gl.get_all_variables()[variable_name].type != literal.type:
+                raise ValueError("Type of definition '" + variable_name +
+                                 "' is not compatible with type " + literal.type)
