@@ -1,4 +1,5 @@
 import sys
+from virtualMachine import *
 from antlr4 import (FileStream, CommonTokenStream, ParseTreeWalker)
 from grammar.LiuLexer import LiuLexer
 from grammar.LiuParser import LiuParser
@@ -20,7 +21,7 @@ def main(argv):
     semantic = SemanticAnalyzer()
     walker = ParseTreeWalker()
     walker.walk(semantic, tree)
-
+    execute_next_cuadruple()
     gl.print_function(global_function)
     gl.print_globals()
     gl.print_constants()

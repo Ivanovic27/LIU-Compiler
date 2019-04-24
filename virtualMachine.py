@@ -29,7 +29,7 @@ def recognize_Operation(operator, left, right, virtual_direction):
         result = readOperator(left, right, virtual_direction)
     elif operator == Operator.PRINT:
         printOperator(left, right, virtual_direction)
-    if operator != Operator.PRINT:
+    if operator != Operator.PRINT and operator != Operator.EOF:
         assignResult(virtual_direction, result)
     if operator != Operator.EOF:
         execute_next_cuadruple()
