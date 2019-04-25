@@ -8,18 +8,22 @@ class Memory:
     code_segment = []
     stack_segment = []
     local_segment = []
+    start_global = 0
+    start_constant = 200
+    start_code = 400
+    start_local = 600
 
     def get_global_value(self, num):
-        return num + 0
+        return num + self.start_global
 
     def get_local_value(self, num):
-        return num + 600
+        return num + self.start_local
 
     def get_constant_value(self, num):
-        return num + 200
+        return num + self.start_constant
 
     def get_code_value(self, num):
-        return num + 400
+        return num + self.start_code
 
     def get_last_global(self):
         return self.get_global_value(len(self.global_data))

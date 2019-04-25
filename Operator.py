@@ -25,3 +25,4 @@ class Operator(Enum):
     READ = 20
     NEXT = 21
     EOF = 22
+    STARTPROC = 23

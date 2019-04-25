@@ -9,6 +9,7 @@ from preloaded_data import global_function
 
 # TODO: Merge get_execution_data and get_definition_data
 # TODO: Move create_variable to another file.
+# TODO: Print remove extra memory added.
 
 
 def main(argv):

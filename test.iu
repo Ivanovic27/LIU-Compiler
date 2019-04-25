@@ -1,9 +1,5 @@
-if (equal(4,4)) {
-    x: 1.
-}else{
-    x: 30.
+x: add(4,1).
+do(something: ''): {
+    x: add(4,7).
 }.
-x: 1.
-iterate while(not(equal(x,7))){
-    x: add(x,1).
-}.
+do('hi').

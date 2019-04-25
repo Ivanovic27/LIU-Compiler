@@ -68,6 +68,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         check_return_type(current_function, return_literal)
 
     def definition_function(self, ctx):
+        memory.add_quadruple(Operator.STARTPROC, None, None, None)
         initial_virtual_direction = memory.get_last_code()
         (function_name, parameters) = self.definition_function_name(
             ctx.definition_function_name())
