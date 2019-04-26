@@ -5,7 +5,7 @@ from preloaded_data import global_function
 def check_return_type(function, return_literal):
     if function.type != 'ANY' and return_literal.type != 'ANY' and function.type != None and function.type != return_literal.type:
         raise ValueError("Return type of function '" +
-                         gl.current_scope + "' is of type " + function.type)
+                         gl.current_scope + "' is of type " + str(function.type))
     function.type = return_literal.type
 
 
@@ -55,5 +55,5 @@ def check_variable_type(variable_name, literal):
     if variable_name in gl.get_all_variables():
         if gl.get_all_variables()[variable_name].type != 'ANY' and literal.type != 'ANY':
             if gl.get_all_variables()[variable_name].type != literal.type:
-                raise ValueError("Type of definition '" + variable_name +
-                                 "' is not compatible with type " + literal.type)
+                raise ValueError("Type of definition '" + str(variable_name) +
+                                 "' is not compatible with type " + str(literal.type))

@@ -62,21 +62,26 @@ class SemanticAnalyzer(LiuGrammarListener):
             return_literal = self.group(ctx.group())
         else:
             return_literal = self.basic_literal(ctx.basic_literal())
-        memory.add_quadruple(
-            Operator.RETURN, return_literal.virtual_direction, None, None)
         current_function = gl.get_current_function()
+        memory.add_quadruple(
+            Operator.RETURN, return_literal.virtual_direction, None, current_function.return_direction)
         check_return_type(current_function, return_literal)
 
     def definition_function(self, ctx):
         memory.add_quadruple(Operator.STARTPROC, None, None, None)
         initial_virtual_direction = memory.get_last_code()
+        value = self.basic_literal(ctx.basic_literal())
+        return_direction = memory.get_last_global()
+        memory.global_data.append(None)
+        memory.add_quadruple(
+            Operator.ASSIGN, value.virtual_direction, None, return_direction)
         (function_name, parameters) = self.definition_function_name(
             ctx.definition_function_name())
         # Change scope inside of the new function
         gl.current_scope = function_name
         parameters = definition_function_parameters(self, ctx, parameters)
         create_function(self, ctx, function_name, parameters,
-                        initial_virtual_direction)
+                        initial_virtual_direction, value, return_direction)
 
     def definition_variable(self, ctx):
         variable_name = self.identification(ctx.identification())

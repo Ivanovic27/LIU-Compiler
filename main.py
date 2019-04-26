@@ -10,6 +10,7 @@ from preloaded_data import global_function
 # TODO: Merge get_execution_data and get_definition_data
 # TODO: Move create_variable to another file.
 # TODO: Print remove extra memory added.
+# TODO: Add negative numbers.
 
 
 def main(argv):
@@ -22,7 +23,7 @@ def main(argv):
     semantic = SemanticAnalyzer()
     walker = ParseTreeWalker()
     walker.walk(semantic, tree)
-    
+
     execute_next_cuadruple()
     gl.print_function(global_function)
     gl.print_globals()

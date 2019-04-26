@@ -9,9 +9,9 @@ class Memory:
     stack_segment = []
     local_segment = []
     start_global = 0
-    start_constant = 200
-    start_code = 400
-    start_local = 600
+    start_constant = 2000
+    start_code = 4000
+    start_local = 6000
 
     def get_global_value(self, num):
         return num + self.start_global
@@ -63,15 +63,15 @@ class Memory:
     def add_assign(self, value_dir, destination_dir):
         self.add_quadruple(Operator.ASSIGN, value_dir, None, destination_dir)
 
-    def add_constant(self, value, type):
-        if type == "BOOLEAN":
+    def add_constant(self, value, val_type):
+        if val_type == "BOOLEAN":
             if value == "True":
                 self.constant_data.append(True)
             elif value == "False":
                 self.constant_data.append(False)
-        elif type == "STRING":
+        elif val_type == "STRING":
             self.constant_data.append(value[1:-1])
-        elif type == "NUMBER":
+        elif val_type == "NUMBER":
             self.constant_data.append(float(value))
-        elif type == "NUMBER":
+        elif val_type == "NUMBER":
             self.constant_data.append(value)

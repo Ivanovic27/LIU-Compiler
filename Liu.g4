@@ -10,7 +10,7 @@ instruction
   : definition | execution | return_statement
   ;
 definition
-  : identification Colon extended_literal | definition_function_name Colon function
+  : identification Colon extended_literal | definition_function_name Colon function Colon basic_literal
   ;
 identification
   : Id identification2
@@ -23,7 +23,7 @@ terminal_definition
   : identification Colon basic_literal
   ;
 execution
-  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | print_execution | read_execution | or_execution | and_execution | next_execution | execution_function_name
+  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | greater_execution | less_execution | print_execution | read_execution | or_execution | and_execution | next_execution | execution_function_name
   ;
 add_execution
   : Add group
@@ -51,6 +51,12 @@ not_execution
   ;
 equal_execution
   : Equal group
+  ;
+greater_execution
+  : Greater group
+  ;
+less_execution
+  : Less group
   ;
 or_execution
   : Or group
@@ -101,7 +107,7 @@ literal
   : basic_literal | terminal_definition
   ;
 function
-  : Left_curly_braces function_code Right_curly_braces
+  : Left_curly_braces function_code Right_curly_braces 
   ;
 group
   : Left_par group2 Right_par

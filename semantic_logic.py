@@ -52,9 +52,9 @@ def definition_function_parameters(self, ctx, parameters):
 def do_function_execution(self, ctx):
     (function_name, grps) = get_execution_data(self, ctx)
     func = gl.functions[function_name]
-    memory.add_quadruple(Operator.ERA, func.virtual_directon, None, None)
     (new_function_name, groups) = do_execution(
         self, grps, function_name)
+    memory.add_quadruple(Operator.ERA, func.virtual_directon, None, None)
     parameters = gl.functions[function_name].parameters
     for group in groups:
         for key, parameter in parameters.items():
@@ -72,13 +72,13 @@ def get_id(ctx):
     return ""
 
 
-def create_function(self, ctx, function_name, parameters, initial_virtual_direction):
+def create_function(self, ctx, function_name, parameters, initial_virtual_direction, value, return_direction):
     # Ensure the new function is not already defined
     check_defined_function(function_name)
     code_virtual_direction = memory.get_last_code() + 1
     # Add the function to the functions table
     gl.functions[function_name] = Function(
-        function_name, None, {}, parameters, False, initial_virtual_direction, code_virtual_direction)
+        function_name, value.type, {}, parameters, False, initial_virtual_direction, code_virtual_direction, return_direction)
     memory.add_quadruple(Operator.PARAMEND, None, None, None)
     self.function(ctx.function())
     gl.current_scope = global_function
@@ -238,7 +238,11 @@ def create_literal(self, ctx):
     elif ctx.execution() != None:
         (function_name, virtual_direction) = self.execution(ctx.execution())
         exection_type = gl.functions[function_name].type
-        return Variable("", exection_type, virtual_direction)
+        if gl.functions[function_name].return_direction != None:
+            return_direction = gl.functions[function_name].return_direction
+        else: 
+            return_direction = virtual_direction
+        return Variable("", exection_type, return_direction)
     elif ctx.String() != None:
         memory.add_constant(ctx.String().getText(), "STRING")
         return Variable("", "STRING", memory.get_last_constant() - 1)

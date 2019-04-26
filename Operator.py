@@ -26,3 +26,5 @@ class Operator(Enum):
     NEXT = 21
     EOF = 22
     STARTPROC = 23
+    GREATER = 24
+    LESS = 25
