@@ -62,7 +62,11 @@ def do_function_execution(self, ctx):
                 memory.add_quadruple(
                     Operator.PARAM, group.virtual_direction, None, parameter.virtual_direction)
     memory.add_quadruple(Operator.GOSUB, func.code_direction, None, None)
-    return (new_function_name, func.virtual_directon)
+    # aqui
+    new_dir = gl.get_last_data()
+    gl.add_memory(None)
+    memory.add_quadruple(Operator.ASSIGN, func.return_direction, None, new_dir)
+    return (new_function_name, new_dir)
 
 def get_id(ctx):
     id = ctx.Id()
@@ -238,7 +242,7 @@ def create_literal(self, ctx):
     elif ctx.execution() != None:
         (function_name, virtual_direction) = self.execution(ctx.execution())
         exection_type = gl.functions[function_name].type
-        if gl.functions[function_name].return_direction != None:
+        if virtual_direction == None:
             return_direction = gl.functions[function_name].return_direction
         else: 
             return_direction = virtual_direction

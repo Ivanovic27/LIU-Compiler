@@ -1,258 +1,228 @@
-from globals import (global_data as gl, memory)
+from globals import (memory)
 from Operator import Operator
 import sys
 
-sys.setrecursionlimit(7000)
-
-
-class Segment():
-    def __init__(self):
-        self.memory = []
-
-
+global_data = []
+constant_data = []
+on_function = False
 segments = []
-goto_operators = [Operator.GOTOF, Operator.GOTO, Operator.ERA,
-                  Operator.GOSUB, Operator.PARAMEND, Operator.ENDPROC]
-not_assign_operators = goto_operators + \
-    [Operator.STARTPROC, Operator.PRINT, Operator.EOF]
-cuadruples = [0]
-
-
-def execute_next_cuadruple():
-    cuadruple = memory.code_segment[getCuadruple()]
-    recognize_Operation(cuadruple.operator, cuadruple.left,
-                        cuadruple.right, cuadruple.virtual_direction)
-
-
-def recognize_Operation(operator, left, right, virtual_direction):
-    if operator == Operator.STARTPROC:
-        gl.on_function = True
-
-    if gl.on_function and operator != Operator.ENDPROC:
-        setCuadruple(getCuadruple() + 1)
-        execute_next_cuadruple()
-    elif gl.on_function and operator == Operator.ENDPROC:
-        gl.on_function = False
-        setCuadruple(getCuadruple() + 1)
-        execute_next_cuadruple()
-    else:
-        if operator == Operator.SUM:
-            result = addOperator(left, right, virtual_direction)
-        elif operator == Operator.SUBTRACT:
-            result = substractOperator(left, right, virtual_direction)
-        elif operator == Operator.ASSIGN:
-            result = assignOperator(left, virtual_direction)
-        elif operator == Operator.MULTIPLY:
-            result = multiplyOperator(left, right, virtual_direction)
-        elif operator == Operator.DIVIDE:
-            result = divideOperator(left, right, virtual_direction)
-        elif operator == Operator.AND:
-            result = andOperator(left, right, virtual_direction)
-        elif operator == Operator.OR:
-            result = orOperator(left, right, virtual_direction)
-        elif operator == Operator.EQUAL:
-            result = equalOperator(left, right, virtual_direction)
-        elif operator == Operator.GREATER:
-            result = greaterOperator(left, right, virtual_direction)
-        elif operator == Operator.LESS:
-            result = lessOperator(left, right, virtual_direction)
-        elif operator == Operator.NOT:
-            result = notOperator(left, right, virtual_direction)
-        elif operator == Operator.READ:
-            result = readOperator(left, right, virtual_direction)
-        elif operator == Operator.PRINT:
-            printOperator(left, right, virtual_direction)
-        elif operator == Operator.GOTOF:
-            gotoFOperator(left, right, virtual_direction)
-        elif operator == Operator.GOTO:
-            gotoOperator(left, right, virtual_direction)
-        elif operator == Operator.ERA:
-            eraOperator(left, right, virtual_direction)
-        elif operator == Operator.GOSUB:
-            gosubOperator(left, right, virtual_direction)
-        elif operator == Operator.PARAMEND:
-            paramendOperator(left, right, virtual_direction)
-        elif operator == Operator.PARAM:
-            result = paramOperator(left, right, virtual_direction)
-        elif operator == Operator.RETURN:
-            result = returnOperator(left, right, virtual_direction)
-        elif operator == Operator.ENDPROC:
-            endprocOperator(left, right, virtual_direction)
-
-        # Execute ANYTHING that requires an assignation
-        if operator not in not_assign_operators:
-            assignResult(operator, virtual_direction, result)
-            if operator == Operator.RETURN:
-                segments.pop()
-                cuadruples.pop()
-        if operator != Operator.EOF:
-            if operator in goto_operators or operator == Operator.RETURN:
-                # Jump to quadruple
-                execute_next_cuadruple()
-            else:
-                # Go to next quadruple
-                setCuadruple(getCuadruple() + 1)
-                execute_next_cuadruple()
+quadruples = [0]
 
 
 # Operations
-def addOperator(left, right, virtual_direction):
-    return float(getValueDirection(left)) + float(getValueDirection(right))
+def add_operator(left, right, virtual_direction):
+    return float(get_value_direction(left)) + float(get_value_direction(right))
 
 
-def substractOperator(left, right, virtual_direction):
-    return float(getValueDirection(left)) - float(getValueDirection(right))
+def subtract_operator(left, right, virtual_direction):
+    return float(get_value_direction(left)) - float(get_value_direction(right))
 
 
-def multiplyOperator(left, right, virtual_direction):
-    return float(getValueDirection(left)) * float(getValueDirection(right))
+def multiply_operator(left, right, virtual_direction):
+    return float(get_value_direction(left)) * float(get_value_direction(right))
 
 
-def divideOperator(left, right, virtual_direction):
-    return float(getValueDirection(left)) / float(getValueDirection(right))
+def divide_operator(left, right, virtual_direction):
+    return float(get_value_direction(left)) / float(get_value_direction(right))
 
 
-def assignOperator(left, virtual_direction):
-    return getValueDirection(left)
+def assign_operator(left, right, virtual_direction):
+    return get_value_direction(left)
 
 
-def andOperator(left, right, virtual_direction):
-    return bool(getValueDirection(left)) and bool(getValueDirection(right))
+def and_operator(left, right, virtual_direction):
+    return bool(get_value_direction(left)) and bool(get_value_direction(right))
 
 
-def orOperator(left, right, virtual_direction):
-    return bool(getValueDirection(left)) or bool(getValueDirection(right))
+def or_operator(left, right, virtual_direction):
+    return bool(get_value_direction(left)) or bool(get_value_direction(right))
 
 
-def notOperator(left, right, virtual_direction):
-    return not getValueDirection(left)
+def not_operator(left, right, virtual_direction):
+    return not bool(get_value_direction(left))
 
 
-def equalOperator(left, right, virtual_direction):
-    return (getValueDirection(left) == getValueDirection(right))
+def equal_operator(left, right, virtual_direction):
+    return (get_value_direction(left) == get_value_direction(right))
 
 
-def greaterOperator(left, right, virtual_direction):
-    return (getValueDirection(left) > getValueDirection(right))
+def greater_operator(left, right, virtual_direction):
+    return (float(get_value_direction(left)) > float(get_value_direction(right)))
 
 
-def lessOperator(left, right, virtual_direction):
-    return (getValueDirection(left) < getValueDirection(right))
+def less_operator(left, right, virtual_direction):
+    return (float(get_value_direction(left)) < float(get_value_direction(right)))
 
 
-def readOperator(left, right, virtual_direction):
-    return input('Enter your input:')
+def read_operator(left, right, virtual_direction):
+    return input()
 
 
-def printOperator(left, right, virtual_direction):
-    value = str(getValueDirection(left))
+def print_operator(left, right, virtual_direction):
+    value = str(get_value_direction(left))
     print(value.replace("\\n", "\n"), end="")
 
 
-def gotoFOperator(left, right, virtual_direction):
-    value = getValueDirection(left)
-    if(False == bool(value)):
-        setCuadruple(virtual_direction - memory.start_code)
+def gotoF_operator(left, right, virtual_direction):
+    value = get_value_direction(left)
+    if not bool(value):
+        set_quadruple(virtual_direction - memory.start_code)
     else:
-        setCuadruple(getCuadruple() + 1)
+        next_quadruple()
 
 
-def gotoOperator(left, right, virtual_direction):
-    setCuadruple(virtual_direction - memory.start_code)
+def goto_operator(left, right, virtual_direction):
+    set_quadruple(virtual_direction - memory.start_code)
 
 
-def eraOperator(left, right, virtual_direction):
-    setCuadruple(getCuadruple() + 1)
-    segments.append(Segment())
-    cuadruples.append(left - memory.start_code)
+def era_operator(left, right, virtual_direction):
+    next_quadruple()
+    segments.append([])
+    quadruples.append(left - memory.start_code)
 
 
-def gosubOperator(left, right, virtual_direction):
-    setCuadruple(getCuadruple() + 1)
-    cuadruples.append(left - memory.start_code)
+def gosub_operator(left, right, virtual_direction):
+    next_quadruple()
+    quadruples.append(left - memory.start_code)
 
 
-def paramendOperator(left, right, virtual_direction):
-    cuadruples.pop()
+def paramend_operator(left, right, virtual_direction):
+    quadruples.pop()
 
 
-def paramOperator(left, right, virtual_direction):
-    return getValueDirection(left, -2)
+def param_operator(left, right, virtual_direction):
+    return get_value_direction(left, -2)
 
 
-def returnOperator(left, right, virtual_direction):
-    value = getValueDirection(left)
-    return value
+def return_operator(left, right, virtual_direction):
+    return get_value_direction(left)
 
 
-def endprocOperator(left, right, virtual_direction):
+def endproc_operator(left, right, virtual_direction):
     segments.pop()
-    cuadruples.pop()
+    quadruples.pop()
+
+
+goto_operators = [Operator.GOTOF, Operator.GOTO, Operator.ERA,
+                  Operator.GOSUB, Operator.PARAMEND, Operator.ENDPROC]
+not_assign_operations = {
+    Operator.PRINT: print_operator,
+    Operator.GOTOF: gotoF_operator,
+    Operator.GOTO: goto_operator,
+    Operator.ERA: era_operator,
+    Operator.GOSUB: gosub_operator,
+    Operator.PARAMEND: paramend_operator,
+    Operator.ENDPROC: endproc_operator
+}
+assign_operations = {
+    Operator.SUM: add_operator,
+    Operator.SUBTRACT: subtract_operator,
+    Operator.ASSIGN: assign_operator,
+    Operator.MULTIPLY: multiply_operator,
+    Operator.DIVIDE: divide_operator,
+    Operator.AND: and_operator,
+    Operator.OR: or_operator,
+    Operator.EQUAL: equal_operator,
+    Operator.GREATER: greater_operator,
+    Operator.LESS: less_operator,
+    Operator.NOT: not_operator,
+    Operator.READ: read_operator,
+    Operator.PARAM: param_operator,
+    Operator.RETURN: return_operator
+}
+
+
+def execute_program():
+    global on_function
+    while True:
+        current_quadruple = memory.code_segment[get_quadruple()]
+        operator = current_quadruple.operator
+        left = current_quadruple.left
+        right = current_quadruple.right
+        virtual_direction = current_quadruple.virtual_direction
+        # Finish executing when found an end of line
+        if operator == Operator.EOF:
+            break
+        # Skip all the code from STARTPROC to ENDPROC
+        if operator == Operator.STARTPROC:
+            on_function = True
+        if on_function:
+            if operator == Operator.ENDPROC:
+                on_function = False
+            next_quadruple()
+            continue
+
+        if operator in assign_operations:
+            result = assign_operations[operator](left, right, virtual_direction)
+        elif operator in not_assign_operations:
+            not_assign_operations[operator](left, right, virtual_direction)
+
+        # Execute ANYTHING that requires an assignation
+        if operator not in not_assign_operations:
+            assign_result(operator, virtual_direction, result)
+        # Remove memory from return and return to previous quadruple
+        if operator == Operator.RETURN:
+            segments.pop()
+            quadruples.pop()
+            continue
+        # Jump to next quadruple
+        if operator not in goto_operators:
+            next_quadruple()
 
 # Get Values from Directions
 
 
-def setCuadruple(value):
-    cuadruples[-1] = value
-    # if len(segments) == 0:
-    #    gl.current_cuadruple = value
-    # else:
-    #    segments[-1].current_cuadruple = value
+def set_quadruple(value):
+    quadruples[-1] = value
 
 
-def getCuadruple():
-    return cuadruples[-1]
-    # if len(segments) == 0:
-    #    return gl.current_cuadruple
-    # else:
-    #    return segments[-1].current_cuadruple
+def get_quadruple():
+    return quadruples[-1]
 
 
-def getValueDirection(direction, dir=-1):
-    # Constant Values
-    if(float(direction) >= memory.start_constant and float(direction) < memory.start_local):
-        direction = direction - memory.start_constant
-        for index, value in enumerate(memory.constant_data):
-            if(direction == index):
-                return value
-    # Local Values
-    elif(float(direction) >= memory.start_local):
-        direction = direction - memory.start_local
-        for index, value in enumerate(segments[dir].memory):
-            if(direction == index):
-                return value
-    # Global Values
-    else:
-        for index, value in enumerate(memory.global_data):
-            if(direction == index):
-                return value
-    return 0
-
-# Assign results to Directions
+def next_quadruple():
+    set_quadruple(get_quadruple() + 1)
 
 
-def assignResult(operator, direction, value):
-    # Constant Values
-    if(float(direction) >= memory.start_constant and float(direction) < memory.start_local):
-        direction = direction - memory.start_constant
-        num = direction - len(memory.constant_data) + 1
-        if num > 0:
-            for _ in range(0, num):
-                memory.constant_data.append(None)
+def get_real_direction(direction):
+    if direction >= memory.start_global and direction < memory.start_constant:
+        return ('global', direction - memory.start_global)
+    elif direction >= memory.start_constant and direction < memory.start_code:
+        return ('constant', direction - memory.start_constant)
+    elif direction >= memory.start_code and direction < memory.start_local:
+        return ('code', direction - memory.start_code)
+    elif direction >= memory.start_local:
+        return ('local', direction - memory.start_local)
+
+
+def get_value_direction(direction, dir=-1):
+    dir_type, direction = get_real_direction(direction)
+    if dir_type == 'global':
+        return global_data[direction]
+    elif dir_type == 'constant':
+        return memory.constant_data[direction]
+    elif dir_type == 'local':
+        return segments[dir][direction]
+
+
+def assign_memory(data, direction):
+    extra_ammount = direction - len(data) + 1
+    if extra_ammount > 0:
+        for _ in range(0, extra_ammount):
+            data.append(None)
+
+
+def assign_result(operator, direction, value):
+    """
+    Assign results to Directions
+    """
+    dir_type, direction = get_real_direction(direction)
+    if dir_type == 'global':
+        assign_memory(global_data, direction)
+        global_data[direction] = value
+    elif dir_type == 'constant':
+        assign_memory(memory.constant_data, direction)
         memory.constant_data[direction] = value
-    # Local Values
-    elif(float(direction) >= memory.start_local):
-        direction = direction - memory.start_local
-        num = direction - len(segments[-1].memory) + 1
-        if num > 0:
-            for _ in range(0, num):
-                segments[-1].memory.append(None)
-        segments[-1].memory[direction] = value
-    # Global Values
-    else:
-        direction = direction - memory.start_global
-        num = direction - len(memory.global_data) + 1
-        if num > 0:
-            for _ in range(0, num):
-                memory.global_data.append(None)
-        memory.global_data[direction] = value
+    elif dir_type == 'local':
+        assign_memory(segments[-1], direction)
+        segments[-1][direction] = value
