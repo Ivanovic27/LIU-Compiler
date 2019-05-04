@@ -24,11 +24,11 @@ def main(argv):
     walker = ParseTreeWalker()
     walker.walk(semantic, tree)
 
-    execute_program()
-    # gl.print_function(global_function)
-    # gl.print_globals()
-    # gl.print_constants()
-    # gl.print_quadruples()
+    # execute_program()
+    gl.print_function(global_function)
+    gl.print_globals()
+    gl.print_constants()
+    gl.print_quadruples()
 
 
 if __name__ == "__main__":
