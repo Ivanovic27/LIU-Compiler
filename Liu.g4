@@ -119,7 +119,7 @@ group3
   : (Coma literal group3)?
   ;
 list1
-  : Left_bracket list2 Right_bracket
+  : Left_par basic_literal Right_par Left_bracket list2 Right_bracket
   ;
 list2
   : (literal list3)?
