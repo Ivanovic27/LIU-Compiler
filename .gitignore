@@ -1,5 +1,3 @@
-*.iu
-
 # ANTLR4 Library
 antlr4/
 grammar/

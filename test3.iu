@@ -1,0 +1,122 @@
+do matrix multiplication (matrix1:(2,2)[],rowsUno: 0,colsUno: 0) with (matrix2:(2,2)[],rowsDos: 0,colsDos: 0) to (matrix3:(2,2)[]): {
+    i:0.
+    j:0.
+    k:0.
+    iterate while(less(i,rowsUno)){
+        j: 0.
+        iterate while(less(j,colsDos)){
+            temp: 0.
+            k: 0.
+            iterate while(less(k,rowsDos)){
+                temp: add(temp,multiply(matrix1[i,k],matrix2[k,j])).
+                k: add(k,1).
+            }.
+            matrix3[i,j]: temp.
+            j: add(j,1).
+        }.
+        i: add(i,1).
+    }.
+    -- Print Resultant Matrix
+    print('---- Resultant Matrix ---- \n').
+    z:0.
+    p:0.
+    iterate while(less(z,rowsUno)){
+        p:0.
+        iterate while(less(p,colsDos)){
+            print(matrix3[z,p],' ').
+            p: add(p,1).
+        }.
+        print('\n').
+        z: add(z,1).
+    }.
+} : 0.
+
+bubble sort(array:(5)[],size: 5): {
+    print('---- Before Sort---- \n').
+    i: 0.
+    iterate while (less(i,size)){
+        print(array[i],' ').
+        i: add(i,1).
+    }.
+    print('\n').
+    i: 0.
+    j: 0.
+    iterate while(less(i,subtract(size,1))){
+        j:0.
+        iterate while(less(j,subtract(size,i,1))){
+            if(greater(array[j],array[add(j,1)])){
+                temp: array[j].
+                array[j]: array[add(j,1)].
+                array[add(j,1)]: temp. 
+            }.
+            j: add(j,1).
+        }.
+        i: add(i,1).
+    }.
+    i: 0.
+    print('---- After Sort ---- \n').
+    iterate while (less(i,size)){
+        print(array[i],' ').
+        i: add(i,1).
+    }.
+    print('\n').
+} : 0.
+
+find value(array:(5)[],size: 0,value: Empty): {
+    x: 0.
+    iterate while(less(x,size)){
+        if(equal(array[x],value)){
+            return x.
+        }.
+        x: add(x,1).
+    }.
+} : -1.
+
+-- Size of matrix 1 and 2
+rowsUno:2.
+colsUno:2.
+rowsDos:2.
+colsDos:2.
+-- Initialize matrix 1 and 2
+matrix1:(2,2)[].
+matrix2:(2,2)[].
+-- Resultant Matrix
+matrix3:(2,2)[].
+-- Initialize Matrix
+z:0.
+p:0.
+iterate while(less(z,2)){
+    p:0.
+    iterate while(less(p,2)){
+        matrix1[z,p]:2.
+        matrix2[z,p]:3.
+        p: add(p,1).
+    }.
+    z: add(z,1).
+}.
+
+-- Multiply Matrix
+do matrix multiplication (matrix1,rowsUno,colsUno) with (matrix2,rowsDos,colsDos) to (matrix3).
+
+-- Sort an array
+arr:(5)[].
+size: 5.
+arr[0]: 12.
+arr[1]: 7.
+arr[2]: 3.
+arr[3]: 10.
+arr[4]: 1.
+bubble sort(arr,size).
+
+-- Find Value in array
+arr[0]: 33.
+arr[1]: True.
+arr[2]: 'Uriel'.
+arr[3]: 15.
+arr[4]: 'Ivan'.
+res: find value(arr,size,15).
+if(not(equal(res,-1))){
+    print(arr[res],' is at position ',res,'\n').
+}else{
+    print('Value does not exist \n').
+}
