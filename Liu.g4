@@ -10,7 +10,7 @@ instruction
   : definition | execution | return_statement
   ;
 definition
-  : identification Colon extended_literal | definition_function_name Colon function Colon basic_literal
+  : identification Colon extended_literal | definition_function_name Colon function Colon extended_literal | array_execution Colon extended_literal
   ;
 identification
   : Id identification2
@@ -18,12 +18,25 @@ identification
 identification2
   : (Id identification2)?
   ;
+array_execution
+  : identification array_access
+  ;
+array_access
+  : (Left_bracket basic_literal array_access2 Right_bracket)?
+  ;
+array_access2
+  : (Coma basic_literal array_access2)?
+  ;
 
 terminal_definition
   : identification Colon basic_literal
   ;
 execution
-  : if_execution | iterate_execution | add_execution | subtract_execution | divide_execution | multiply_execution | not_execution | equal_execution | greater_execution | less_execution | print_execution | read_execution | or_execution | and_execution | next_execution | execution_function_name
+  : if_execution | iterate_execution
+  | add_execution | subtract_execution | divide_execution | multiply_execution
+  | not_execution | equal_execution | greater_execution | less_execution | min_execution | max_execution
+  | print_execution | read_execution | or_execution | and_execution | sqrt_execution | power_execution
+  | execution_function_name
   ;
 add_execution
   : Add group
@@ -70,8 +83,17 @@ print_execution
 read_execution
   : Read group
   ;
-next_execution
-  : group Next
+sqrt_execution
+  : Sqrt group
+  ;
+power_execution
+  : group Power group
+  ;
+max_execution
+  : Max group
+  ;
+min_execution
+  : Min group
   ;
 execution_function_name
   : identification group execution_function_name2 | group identification execution_function_name2
@@ -101,7 +123,7 @@ extended_literal
   : literal | list1
   ;
 basic_literal
-  : String | Number | Boolean | execution | identification | Empty
+  : String | Number | Boolean | execution | identification | array_execution | Empty
   ;
 literal
   : basic_literal | terminal_definition
@@ -119,13 +141,10 @@ group3
   : (Coma literal group3)?
   ;
 list1
-  : Left_par basic_literal Right_par Left_bracket list2 Right_bracket
+  : Left_par Number list_dimension Right_par Left_bracket Right_bracket
   ;
-list2
-  : (literal list3)?
-  ;
-list3
-  : (Coma literal list3)?
+list_dimension
+  : (Coma Number list_dimension)?
   ;
 
 Empty           :'Empty';
@@ -157,7 +176,10 @@ Boolean         : 'True' | 'False';
 Return          : 'return';
 Or              : 'or';
 And             : 'and';
-Next            :'next';
+Sqrt            : 'sqrt';
+Power           : 'power';
+Max             : 'max';
+Min             : 'min';
 
 
 Id

@@ -80,6 +80,15 @@ class Global:
                 memory.add_quadruple(id, row.virtual_direction, None, None)
         return None
 
+    def add_array_quadruple(self, id, table):
+        for row in table:
+            (_, _, size_dir) = row.list_info
+            registry = self.get_last_data()
+            memory.add_quadruple(
+                id, row.virtual_direction, size_dir, registry)
+            self.add_memory(None)
+        return registry
+
     def print_quadruples(self):
         print("*************     CODE            ************")
         table = BeautifulTable()

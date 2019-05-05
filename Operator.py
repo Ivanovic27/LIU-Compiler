@@ -28,3 +28,9 @@ class Operator(Enum):
     STARTPROC = 23
     GREATER = 24
     LESS = 25
+    VER = 26
+    PARAMARR = 27
+    SQRT = 28
+    POWER = 29
+    MAX = 30
+    MIN = 31

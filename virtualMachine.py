@@ -93,6 +93,11 @@ def paramend_operator(left, right, virtual_direction):
 def param_operator(left, right, virtual_direction):
     return get_value_direction(left, -2)
 
+def paramarr_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    for i in range(0, size):
+        assign_result(Operator.ASSIGN, virtual_direction + i, get_value_direction(left + i))
+
 
 def return_operator(left, right, virtual_direction):
     return get_value_direction(left)
@@ -101,6 +106,12 @@ def return_operator(left, right, virtual_direction):
 def endproc_operator(left, right, virtual_direction):
     segments.pop()
     quadruples.pop()
+
+
+def ver_operator(left, right, virtual_direction):
+    a = get_value_direction(left)
+    if a < right or a > virtual_direction:
+        raise ValueError("Array off limits")
 
 
 goto_operators = [Operator.GOTOF, Operator.GOTO, Operator.ERA,
@@ -112,7 +123,9 @@ not_assign_operations = {
     Operator.ERA: era_operator,
     Operator.GOSUB: gosub_operator,
     Operator.PARAMEND: paramend_operator,
-    Operator.ENDPROC: endproc_operator
+    Operator.ENDPROC: endproc_operator,
+    Operator.VER: ver_operator,
+    Operator.PARAMARR: paramarr_operator
 }
 assign_operations = {
     Operator.SUM: add_operator,
@@ -185,7 +198,11 @@ def next_quadruple():
 
 
 def get_real_direction(direction):
-    if direction >= memory.start_global and direction < memory.start_constant:
+    if isinstance(direction, str):
+        direction = int(direction[1:-1])
+        new_direction = get_value_direction(direction)
+        return get_real_direction(int(new_direction))
+    elif direction >= memory.start_global and direction < memory.start_constant:
         return ('global', direction - memory.start_global)
     elif direction >= memory.start_constant and direction < memory.start_code:
         return ('constant', direction - memory.start_constant)

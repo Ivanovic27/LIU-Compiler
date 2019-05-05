@@ -22,6 +22,13 @@ initial_functions = {
         "a": GroupItem("NUMBER", 0, None, 0),
         "b": GroupItem("NUMBER", 1, None, 0),
     }, True),
+    "sqrt(param)": Function("sqrt(param)", "NUMBER", {}, {
+        "a": GroupItem("NUMBER", 0, None, 0),
+    }),
+    "(param)power(param)": Function("(param)power(param)", "NUMBER", {}, {
+        "a": GroupItem("NUMBER", 0, None, 0),
+        "b": GroupItem("NUMBER", 0, None, 1),
+    }),
     "not(param)": Function("not(param)", "BOOLEAN", {}, {
         "a": GroupItem("BOOLEAN", 0, None, 0),
     }, False),
@@ -47,14 +54,17 @@ initial_functions = {
         "a": GroupItem("ANY", 0, None, 0),
     }, True),
     "read(param)": Function("read(param)", "ANY", {}, {}),
-    "(param)next": Function("(param)next", "LIST", {}, {
-        "a": GroupItem("LIST", 0, None, 0),
-    }),
     "if(param)": Function("if(param)", "EMPTY", {}, {
         "a": GroupItem("BOOLEAN", 0, None, 0),
     }),
     "iteratewhile(param)": Function("iteratewhile(param)", "EMPTY", {}, {
         "a": GroupItem("BOOLEAN", 0, None, 0),
+    }),
+    "max(param)": Function("max(param)", "EMPTY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "min(param)": Function("min(param)", "EMPTY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
     }),
 }
 mapping_functions = {
@@ -70,5 +80,8 @@ mapping_functions = {
     "and_execution": {"name": "and(param)", "type": "both", "operation": Operator.AND},
     "print_execution": {"name": "print(param)", "type": "left", "operation": Operator.PRINT},
     "read_execution": {"name": "read(param)", "type": "both", "operation": Operator.READ},
-    "next_execution": {"name": "(param)next", "type": "both", "operation": Operator.NEXT},
+    "sqrt_execution": {"name": "sqrt(param)", "type": "both", "operation": Operator.SQRT},
+    "power_execution": {"name": "(param)power(param)", "type": "both", "operation": Operator.POWER},
+    "max_execution": {"name": "max(param)", "type": "array", "operation": Operator.MAX},
+    "min_execution": {"name": "min(param)", "type": "array", "operation": Operator.MIN},
 }

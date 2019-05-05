@@ -8,10 +8,12 @@ class Memory:
     code_segment = []
     stack_segment = []
     local_segment = []
+    list_segment = []
     start_global = 0
     start_constant = 2000
     start_code = 4000
     start_local = 6000
+    start_list = 8000
 
     def get_global_value(self, num):
         return num + self.start_global
@@ -25,6 +27,9 @@ class Memory:
     def get_code_value(self, num):
         return num + self.start_code
 
+    def get_list_value(self, num):
+        return num + self.start_list
+
     def get_last_global(self):
         return self.get_global_value(len(self.global_data))
 
@@ -36,6 +41,9 @@ class Memory:
 
     def get_last_code(self):
         return self.get_code_value(len(self.code_segment))
+
+    def get_last_list(self):
+        return self.get_list_value(len(self.list_segment))
 
     def fill_jump(self, code_dir, offset=0):
         self.code_segment[code_dir].virtual_direction = self.get_last_code(

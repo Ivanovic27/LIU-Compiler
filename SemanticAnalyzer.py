@@ -32,8 +32,54 @@ class SemanticAnalyzer(LiuGrammarListener):
     def definition(self, ctx):
         if ctx.definition_function_name():
             self.definition_function(ctx)
+        elif ctx.array_execution():
+            literal = self.extended_literal(ctx.extended_literal())
+            (variable_name, registry) = self.array_execution(ctx.array_execution())
+            memory.add_assign(literal.virtual_direction, registry)
         else:
             self.definition_variable(ctx)
+
+    def array_execution(self, ctx):
+        variable_name = self.identification(ctx.identification())
+        items = self.array_access(ctx.array_access())
+        variable = gl.get_variable(variable_name)
+        registry = None
+        if variable != None:
+            (size, i, _) = variable.list_info
+            if len(items) > len(i):
+                raise ValueError("Array out of bounds") 
+            previous_aux = None
+            current_aux = None
+            for (index, x) in enumerate(i):
+                dir = items[index].virtual_direction
+                current_aux = dir
+                memory.add_quadruple(Operator.VER, dir, 0, x["size"] - 1)
+                if index < len(i) - 1:
+                    current_aux = gl.get_last_data()
+                    memory.add_quadruple(
+                        Operator.MULTIPLY, dir, x["m"], current_aux)
+                    gl.add_memory(None)
+                if index >= 1:
+                    memory.add_quadruple(
+                        Operator.SUM, previous_aux, current_aux, gl.get_last_data())
+                    current_aux = gl.get_last_data()
+                    gl.add_memory(None)
+                previous_aux = current_aux
+            memory.add_quadruple(Operator.SUM, current_aux,
+                                 variable.constant_direction, gl.get_last_data())
+            registry = gl.get_last_data()
+            gl.add_memory(None)
+        return (variable_name, '(' + str(registry) + ')')
+                
+
+    def array_access(self, ctx):
+        items = []
+        if ctx.basic_literal() != None:
+            item = self.basic_literal(ctx.basic_literal())
+            rest_items = self.array_access(ctx.array_access2())
+            items = [item] + rest_items
+        return items
+
 
     def execution(self, ctx):
         if ctx.execution_function_name() != None:
@@ -70,18 +116,26 @@ class SemanticAnalyzer(LiuGrammarListener):
     def definition_function(self, ctx):
         memory.add_quadruple(Operator.STARTPROC, None, None, None)
         initial_virtual_direction = memory.get_last_code()
-        value = self.basic_literal(ctx.basic_literal())
+        literal = self.extended_literal(ctx.extended_literal())
         return_direction = memory.get_last_global()
-        memory.global_data.append(None)
-        memory.add_quadruple(
-            Operator.ASSIGN, value.virtual_direction, None, return_direction)
+        if literal.type == 'LIST':
+            (size, _, _) = literal.list_info
+            literal.virtual_direction = return_direction
+            literal.constant_direction = memory.get_last_constant()
+            memory.add_constant(return_direction, 'NUMBER')
+            for _ in range(0, size):
+                gl.add_memory(None)
+        else:
+            memory.global_data.append(None)
+            memory.add_quadruple(
+                Operator.ASSIGN, literal.virtual_direction, None, return_direction)
         (function_name, parameters) = self.definition_function_name(
             ctx.definition_function_name())
         # Change scope inside of the new function
         gl.current_scope = function_name
         parameters = definition_function_parameters(self, ctx, parameters)
         create_function(self, ctx, function_name, parameters,
-                        initial_virtual_direction, value, return_direction)
+                        initial_virtual_direction, literal, return_direction)
 
     def definition_variable(self, ctx):
         variable_name = self.identification(ctx.identification())
@@ -89,6 +143,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         create_variable(variable_name, literal)
 
     def extended_literal(self, ctx):
+        info = None
         if ctx.literal() != None:
             info = self.literal(ctx.literal())
         elif ctx.list1() != None:
@@ -96,8 +151,29 @@ class SemanticAnalyzer(LiuGrammarListener):
         return info
 
     def list1(self, ctx):
-        (first_direction, variables) = get_list_variables(self, ctx.list2())
-        return Group("", "LIST", variables, first_direction)
+        item = int(ctx.Number().getText())
+        rest_items = self.list_dimension(ctx.list_dimension())
+        items = [item] + rest_items
+        final_items = []
+        size = 1
+        for item in items:
+            size = size * item
+        temp = size
+        new_dir = memory.get_last_constant()
+        memory.constant_data.append(size)
+        for item in items:
+            temp = temp / item
+            final_items.append({ "m": memory.get_last_constant(), "size": item })
+            memory.constant_data.append(temp)
+        return Variable("", "LIST", None, (size, final_items, new_dir))
+    
+    def list_dimension(self, ctx):
+        items = []
+        if ctx.Number() != None:
+            item = int(ctx.Number().getText())
+            rest_items = self.list_dimension(ctx.list_dimension())
+            items = [item] + rest_items
+        return items
 
     def group(self, ctx):
         variables = get_group_variables(self, ctx.group2())
@@ -131,5 +207,13 @@ class SemanticAnalyzer(LiuGrammarListener):
         literal = self.extended_literal(ctx.extended_literal())
         new_dir = gl.get_last_data()
         gl.add_memory(None)
-        memory.add_assign(literal.virtual_direction, new_dir)
+        if literal.type == 'LIST':
+            new_dir = gl.get_last_data()
+            literal.constant_direction = memory.get_last_constant()
+            memory.add_constant(new_dir, 'NUMBER')
+            (size, _, _) = literal.list_info
+            for i in range(0, size):
+                gl.add_memory(None)
+        else:
+            memory.add_assign(literal.virtual_direction, new_dir)
         return (variable_name, literal, new_dir)

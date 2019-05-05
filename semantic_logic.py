@@ -11,7 +11,8 @@ from Operator import Operator
 
 types = {
     "both": gl.add_continuous_quadruples,
-    "left": gl.add_left_quadruples
+    "left": gl.add_left_quadruples,
+    "array": gl.add_array_quadruple
 }
 
 def create_variable(variable_name, literal):
@@ -20,11 +21,22 @@ def create_variable(variable_name, literal):
     if not variable:
         # Add variable if not already declared.
         new_dir = gl.get_last_data()
-        gl.add_memory(None)
-        new_variable = Variable(variable_name, literal.type, new_dir)
+        if literal.type == 'LIST':
+            (size, _, _) = literal.list_info
+            literal.virtual_direction = new_dir
+            literal.name = variable_name
+            literal.constant_direction = memory.get_last_constant()
+            memory.add_constant(new_dir, 'NUMBER')
+            new_variable = literal
+            for i in range(0, size):
+                gl.add_memory(None)
+        else:
+            gl.add_memory(None)
+            new_variable = Variable(variable_name, literal.type, new_dir)
         gl.add_variable(variable_name, new_variable)
         variable = gl.get_variable(variable_name)
-    memory.add_assign(literal.virtual_direction, variable.virtual_direction)
+    if literal.type != 'LIST':
+        memory.add_assign(literal.virtual_direction, variable.virtual_direction)
 
 
 def definition_function_parameters(self, ctx, parameters):
@@ -59,8 +71,13 @@ def do_function_execution(self, ctx):
     for group in groups:
         for key, parameter in parameters.items():
             if parameter.pos == group.pos and parameter.param == group.param:
-                memory.add_quadruple(
-                    Operator.PARAM, group.virtual_direction, None, parameter.virtual_direction)
+                if parameter.type == 'LIST':
+                    (_, _, size_dir) = parameter.list_info
+                    memory.add_quadruple(
+                        Operator.PARAMARR, group.virtual_direction, size_dir, parameter.virtual_direction)
+                else:
+                    memory.add_quadruple(
+                        Operator.PARAM, group.virtual_direction, None, parameter.virtual_direction)
     memory.add_quadruple(Operator.GOSUB, func.code_direction, None, None)
     # aqui
     new_dir = gl.get_last_data()
@@ -76,13 +93,13 @@ def get_id(ctx):
     return ""
 
 
-def create_function(self, ctx, function_name, parameters, initial_virtual_direction, value, return_direction):
+def create_function(self, ctx, function_name, parameters, initial_virtual_direction, literal, return_direction):
     # Ensure the new function is not already defined
     check_defined_function(function_name)
     code_virtual_direction = memory.get_last_code() + 1
     # Add the function to the functions table
     gl.functions[function_name] = Function(
-        function_name, value.type, {}, parameters, False, initial_virtual_direction, code_virtual_direction, return_direction)
+        function_name, literal.type, {}, parameters, False, initial_virtual_direction, code_virtual_direction, return_direction, literal.list_info)
     memory.add_quadruple(Operator.PARAMEND, None, None, None)
     self.function(ctx.function())
     gl.current_scope = global_function
@@ -94,33 +111,29 @@ def get_group_variables(self, ctx, current_position=0):
     if ctx.literal() != None:
         item = self.literal(ctx.literal())
         new_item = GroupItem(item.type, current_position,
-                             item.virtual_direction)
+                             item.virtual_direction, None, item.list_info)
         rest_items = get_group_variables(
             self, ctx.group3(), current_position + 1)
         return [new_item] + rest_items
     return []
 
 
-def get_list_variables(self, ctx, current_position=0, last_item = None):
-    first_direction = None
-    if ctx.literal() != None:
-        item = self.literal(ctx.literal())
-        value_dir = gl.get_last_data()
-        gl.add_memory(None)
-        memory.add_assign(item.virtual_direction, value_dir)
-        next_dir = gl.get_last_data()
-        gl.add_memory(None)
-        memory.add_assign(None, next_dir)
-        if last_item == None:
-            first_direction = value_dir
-        else:
-            memory.add_quadruple(Operator.MEM, value_dir, None, last_item)
-        new_item = GroupItem(item.type, current_position,
-                             item.virtual_direction)
-        (_, rest_items) = get_list_variables(
-            self, ctx.list3(), current_position + 1, next_dir)
-        return (first_direction, [new_item] + rest_items)
-    return (first_direction, [])
+def get_list_variables(self, ctx, first_direction, size, current_position = 0):
+    if ctx.extended_literal() != None:
+        item = self.extended_literal(ctx.extended_literal())
+        value_direction = first_direction + current_position
+        memory.add_assign(item.virtual_direction, value_direction)
+        if current_position >= size:
+            raise ValueError("Exceeded list size")
+        get_list_variables(self, ctx.list3(), first_direction, size, current_position + 1)
+
+def get_items(self, ctx):
+    if ctx.extended_literal() != None:
+        rest_items = get_items(self, ctx.list3())
+        item = self.extended_literal(ctx.extended_literal())
+        items = [item] + rest_items
+        return items
+    return []
 
 
 def do_execution(self, groups, function_name):
@@ -188,10 +201,13 @@ def do_iterate_execution(self, ctx):
 def get_parameters_data(self, ctx, param_position=0):
     parameters = {}
     if ctx.definition() != None:
-        (name, type, direction) = self.defintion_parameter(ctx.definition())
+        (name, literal, direction) = self.defintion_parameter(ctx.definition())
         parameters = get_parameters_data(
             self, ctx.parameters2(), param_position + 1)
-        parameters[name] = GroupItem(type.type, param_position)
+        parameters[name] = GroupItem(
+            literal.type, param_position, None, None, literal.list_info)
+        if literal.type == 'LIST':
+            parameters[name].constant_direction = literal.constant_direction
         parameters[name].virtual_direction = direction
     return parameters
 
@@ -239,14 +255,19 @@ def create_literal(self, ctx):
         id = self.identification(ctx.identification())
         check_variable_exits(id)
         return gl.get_all_variables()[id]
+    elif ctx.array_execution() != None:
+        (id, direction) = self.array_execution(ctx.array_execution())
+        # check_variable_exits(id)
+        return Variable("", 'ANY', direction)
     elif ctx.execution() != None:
         (function_name, virtual_direction) = self.execution(ctx.execution())
         exection_type = gl.functions[function_name].type
+        list_info = gl.functions[function_name].return_list_info
         if virtual_direction == None:
             return_direction = gl.functions[function_name].return_direction
         else: 
             return_direction = virtual_direction
-        return Variable("", exection_type, return_direction)
+        return Variable("", exection_type, return_direction, list_info)
     elif ctx.String() != None:
         memory.add_constant(ctx.String().getText(), "STRING")
         return Variable("", "STRING", memory.get_last_constant() - 1)
