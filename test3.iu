@@ -119,4 +119,4 @@ if(not(equal(res,-1))){
     print(arr[res],' is at position ',res,'\n').
 }else{
     print('Value does not exist \n').
-}
+}.

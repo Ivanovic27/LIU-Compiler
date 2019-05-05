@@ -89,6 +89,17 @@ class Global:
             self.add_memory(None)
         return registry
 
+    def add_map_quadruple(self, id, group):
+        (_, _, size_dir) = group[0].list_info
+        registry = self.get_last_data()
+        memory.add_quadruple(
+            id, group[0].virtual_direction, size_dir, registry)
+        registry = self.get_last_data()
+        memory.add_quadruple(
+            id, group[1].virtual_direction, group[2].virtual_direction, registry)
+        self.add_memory(None)
+        return registry
+
     def print_quadruples(self):
         print("*************     CODE            ************")
         table = BeautifulTable()

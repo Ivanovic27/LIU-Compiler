@@ -60,10 +60,53 @@ initial_functions = {
     "iteratewhile(param)": Function("iteratewhile(param)", "EMPTY", {}, {
         "a": GroupItem("BOOLEAN", 0, None, 0),
     }),
-    "max(param)": Function("max(param)", "EMPTY", {}, {
+    "max(param)": Function("max(param)", "ANY", {}, {
         "a": GroupItem("LIST", 0, None, 0),
     }),
-    "min(param)": Function("min(param)", "EMPTY", {}, {
+    "min(param)": Function("min(param)", "ANY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)multiplyall": Function("(param)multiplyall", "NUMBER", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)subtractall": Function("(param)subtractall", "NUMBER", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)addall": Function("(param)addall", "NUMBER", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)first": Function("(param)first", "ANY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)last": Function("(param)last", "ANY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+    }),
+    "(param)istext": Function("(param)istext", "BOOLEAN", {}, {
+        "a": GroupItem("ANY", 0, None, 0),
+    }),
+    "(param)isnumber": Function("(param)isnumber", "BOOLEAN", {}, {
+        "a": GroupItem("ANY", 0, None, 0),
+    }),
+    "(param)iseven": Function("(param)iseven", "BOOLEAN", {}, {
+        "a": GroupItem("NUMBER", 0, None, 0),
+    }),
+    "(param)isodd": Function("(param)isodd", "BOOLEAN", {}, {
+        "a": GroupItem("NUMBER", 0, None, 0),
+    }),
+    "(param)isempty": Function("(param)isempty", "BOOLEAN", {}, {
+        "a": GroupItem("ANY", 0, None, 0),
+    }),
+    "(param)map(param)": Function("(param)map(param)", "ANY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+        "b": GroupItem("STRING", 0, None, 1),
+        "c": GroupItem("NUMBER", 1, None, 1),
+    }),
+    "(param)filter(param)": Function("(param)filter(param)", "ANY", {}, {
+        "a": GroupItem("LIST", 0, None, 0),
+        "b": GroupItem("STRING", 0, None, 1),
+        "c": GroupItem("NUMBER", 1, None, 1),
+    }),
+    "(param)length": Function("(param)length", "NUMBER", {}, {
         "a": GroupItem("LIST", 0, None, 0),
     }),
 }
@@ -84,4 +127,17 @@ mapping_functions = {
     "power_execution": {"name": "(param)power(param)", "type": "both", "operation": Operator.POWER},
     "max_execution": {"name": "max(param)", "type": "array", "operation": Operator.MAX},
     "min_execution": {"name": "min(param)", "type": "array", "operation": Operator.MIN},
+    "multiply_all_execution": {"name": "(param)multiplyall", "type": "array", "operation": Operator.MULTIPLYALL},
+    "subtract_all_execution": {"name": "(param)subtractall", "type": "array", "operation": Operator.SUBTRACTALL},
+    "add_all_execution": {"name": "(param)addall", "type": "array", "operation": Operator.ADDALL},
+    "first_execution": {"name": "(param)first", "type": "array", "operation": Operator.FIRST},
+    "last_execution": {"name": "(param)last", "type": "array", "operation": Operator.LAST},
+    "is_text_execution": {"name": "(param)istext", "type": "both", "operation": Operator.ISTEXT},
+    "is_number_execution": {"name": "(param)isnumber", "type": "both", "operation": Operator.ISNUMBER},
+    "is_odd_execution": {"name": "(param)isodd", "type": "both", "operation": Operator.ISODD},
+    "is_even_execution": {"name": "(param)iseven", "type": "both", "operation": Operator.ISEVEN},
+    "is_empty_execution": {"name": "(param)isempty", "type": "both", "operation": Operator.ISEMPTY},
+    "map_execution": {"name": "(param)map(param)", "type": "map", "operation": Operator.MAP},
+    "filter_execution": {"name": "(param)filter(param)", "type": "map", "operation": Operator.FILTER},
+    "length_execution": {"name": "(param)length", "type": "array", "operation": Operator.LENGTH},
 }

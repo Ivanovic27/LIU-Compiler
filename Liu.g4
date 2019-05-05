@@ -36,6 +36,9 @@ execution
   | add_execution | subtract_execution | divide_execution | multiply_execution
   | not_execution | equal_execution | greater_execution | less_execution | min_execution | max_execution
   | print_execution | read_execution | or_execution | and_execution | sqrt_execution | power_execution
+  | multiply_all_execution | subtract_all_execution | add_all_execution | first_execution | last_execution
+  | is_text_execution | is_number_execution | is_even_execution | is_odd_execution | is_empty_execution
+  | map_execution | filter_execution | length_execution
   | execution_function_name
   ;
 add_execution
@@ -94,6 +97,45 @@ max_execution
   ;
 min_execution
   : Min group
+  ;
+multiply_all_execution
+  : group MultiplyAll
+  ;
+subtract_all_execution
+  : group SubtractAll
+  ;
+add_all_execution
+  : group AddAll
+  ;
+first_execution
+  : group First
+  ;
+last_execution
+  : group Last
+  ;
+is_text_execution
+  : group IsText
+  ;
+is_number_execution
+  : group IsNumber
+  ;
+is_even_execution
+  : group IsEven
+  ;
+is_odd_execution
+  : group IsOdd
+  ;
+is_empty_execution
+  : group IsEmpty
+  ;
+map_execution
+  : group Map group
+  ;
+filter_execution
+  : group Filter group
+  ;
+length_execution
+  : group Length
   ;
 execution_function_name
   : identification group execution_function_name2 | group identification execution_function_name2
@@ -180,6 +222,19 @@ Sqrt            : 'sqrt';
 Power           : 'power';
 Max             : 'max';
 Min             : 'min';
+MultiplyAll     : 'multiply all';
+SubtractAll     : 'subtract all';
+AddAll          : 'add all';
+First           : 'first';
+Last            : 'last';
+IsText          : 'is text';
+IsNumber        : 'is number';
+IsEven          : 'is even';
+IsOdd           : 'is odd';
+IsEmpty         : 'is empty';
+Map             : 'map';
+Filter          : 'filter';
+Length          : 'length';
 
 
 Id

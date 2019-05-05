@@ -34,3 +34,16 @@ class Operator(Enum):
     POWER = 29
     MAX = 30
     MIN = 31
+    MULTIPLYALL = 32
+    SUBTRACTALL = 33
+    ADDALL = 34
+    FIRST = 35
+    LAST = 36
+    ISTEXT = 37
+    ISNUMBER = 38
+    ISEVEN = 39
+    ISODD = 40
+    ISEMPTY = 41
+    MAP = 42
+    FILTER = 43
+    LENGTH = 44

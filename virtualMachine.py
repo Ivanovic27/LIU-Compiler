@@ -1,13 +1,14 @@
 from globals import (memory)
 from Operator import Operator
 import sys
+import math
 
 global_data = []
 constant_data = []
 on_function = False
 segments = []
 quadruples = [0]
-
+map_info = None
 
 # Operations
 def add_operator(left, right, virtual_direction):
@@ -54,6 +55,138 @@ def less_operator(left, right, virtual_direction):
     return (float(get_value_direction(left)) < float(get_value_direction(right)))
 
 
+def sqrt_operator(left, right, virtual_direction):
+    return (math.sqrt(float(get_value_direction(left))))
+
+
+def power_operator(left, right, virtual_direction):
+    return (float(get_value_direction(left)) ** float(get_value_direction(right)))
+
+
+def max_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    result = None
+    for i in range(0, size):
+        temp = get_value_direction(left + i)
+        if result == None or temp > result:
+            result = temp
+    return result
+
+
+def min_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    result = None
+    for i in range(0, size):
+        temp = get_value_direction(left + i)
+        if result == None or temp < result:
+            result = temp
+    return result
+
+
+def multiply_all_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    result = 1
+    for i in range(0, size):
+        value = float(get_value_direction(left + i))
+        result *= value
+    return result
+
+
+def subtract_all_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    result = 0
+    for i in range(0, size):
+        value = float(get_value_direction(left + i))
+        result -= value
+    return result
+
+
+def add_all_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    result = 0
+    for i in range(0, size):
+        value = float(get_value_direction(left + i))
+        result += value
+    return result
+
+
+def first_operator(left, right, virtual_direction):
+    return get_value_direction(left)
+
+def last_operator(left, right, virtual_direction):
+    size = get_value_direction(right)
+    return get_value_direction(left + size - 1)
+
+def is_text_operator(left, right, virtual_direction):
+    value = get_value_direction(left)
+    return type(value) is str
+
+def is_number_operator(left, right, virtual_direction):
+    value = get_value_direction(left)
+    return type(value) is float or type(value) is int
+
+def is_even_operator(left, right, virtual_direction):
+    value = float(get_value_direction(left))
+    return (value % 2) <= 0
+
+def is_odd_operator(left, right, virtual_direction):
+    value = float(get_value_direction(left))
+    return (value % 2) > 0
+
+def is_empty_operator(left, right, virtual_direction):
+    value = get_value_direction(left)
+    return value == None
+
+def map_operator(left, right, virtual_direction):
+    global map_info
+    if map_info == None:
+        size = get_value_direction(right)
+        dir = left
+        map_info = (left, size)
+    else:
+        (dir, size) = map_info
+        operator = str(get_value_direction(left))
+        num = float(get_value_direction(right))
+        for i in range(0, size):
+            previous_value = float(get_value_direction(dir + i))
+            new_value = previous_value
+            if operator == 'multiply':
+                new_value *= num
+            elif operator == 'divide':
+                new_value /= num
+            elif operator == 'add':
+                new_value += num
+            elif operator == 'subtract':
+                new_value -= num
+            assign_result(Operator.ASSIGN, dir + i, new_value)
+        map_info = None
+
+
+def filter_operator(left, right, virtual_direction):
+    global map_info
+    if map_info == None:
+        size = get_value_direction(right)
+        dir = left
+        map_info = (left, size)
+    else:
+        (dir, size) = map_info
+        operator = str(get_value_direction(left))
+        num = float(get_value_direction(right))
+        new_results = []
+        for i in range(0, size):
+            value = float(get_value_direction(dir + i))
+            if (operator == 'greater' and value > num) or (operator == 'less' and value < num) or (operator == 'equal' and value == num) or (operator == 'not equal' and value != num):
+                new_results.append(value)
+        for i in range(0, size):
+            value = None
+            if i < len(new_results):
+                value = new_results[i]
+            assign_result(Operator.ASSIGN, dir + i, value)
+        map_info = None
+
+def length_operator(left, right, virtual_direction):
+    return get_value_direction(right)
+
 def read_operator(left, right, virtual_direction):
     return input()
 
@@ -93,10 +226,12 @@ def paramend_operator(left, right, virtual_direction):
 def param_operator(left, right, virtual_direction):
     return get_value_direction(left, -2)
 
+
 def paramarr_operator(left, right, virtual_direction):
     size = get_value_direction(right)
     for i in range(0, size):
-        assign_result(Operator.ASSIGN, virtual_direction + i, get_value_direction(left + i))
+        assign_result(Operator.ASSIGN, virtual_direction +
+                      i, get_value_direction(left + i))
 
 
 def return_operator(left, right, virtual_direction):
@@ -125,7 +260,9 @@ not_assign_operations = {
     Operator.PARAMEND: paramend_operator,
     Operator.ENDPROC: endproc_operator,
     Operator.VER: ver_operator,
-    Operator.PARAMARR: paramarr_operator
+    Operator.PARAMARR: paramarr_operator,
+    Operator.MAP: map_operator,
+    Operator.FILTER: filter_operator
 }
 assign_operations = {
     Operator.SUM: add_operator,
@@ -141,7 +278,22 @@ assign_operations = {
     Operator.NOT: not_operator,
     Operator.READ: read_operator,
     Operator.PARAM: param_operator,
-    Operator.RETURN: return_operator
+    Operator.RETURN: return_operator,
+    Operator.SQRT: sqrt_operator,
+    Operator.POWER: power_operator,
+    Operator.MAX: max_operator,
+    Operator.MIN: min_operator,
+    Operator.MULTIPLYALL: multiply_all_operator,
+    Operator.SUBTRACTALL: subtract_all_operator,
+    Operator.ADDALL: add_all_operator,
+    Operator.FIRST: first_operator,
+    Operator.LAST: last_operator,
+    Operator.ISTEXT: is_text_operator,
+    Operator.ISNUMBER: is_number_operator,
+    Operator.ISEVEN: is_even_operator,
+    Operator.ISODD: is_odd_operator,
+    Operator.ISEMPTY: is_empty_operator,
+    Operator.LENGTH: length_operator
 }
 
 
@@ -166,7 +318,8 @@ def execute_program():
             continue
 
         if operator in assign_operations:
-            result = assign_operations[operator](left, right, virtual_direction)
+            result = assign_operations[operator](
+                left, right, virtual_direction)
         elif operator in not_assign_operations:
             not_assign_operations[operator](left, right, virtual_direction)
 

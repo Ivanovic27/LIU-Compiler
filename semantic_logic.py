@@ -12,7 +12,8 @@ from Operator import Operator
 types = {
     "both": gl.add_continuous_quadruples,
     "left": gl.add_left_quadruples,
-    "array": gl.add_array_quadruple
+    "array": gl.add_array_quadruple,
+    "map": gl.add_map_quadruple
 }
 
 def create_variable(variable_name, literal):

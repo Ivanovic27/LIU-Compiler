@@ -83,3 +83,5 @@ class Memory:
             self.constant_data.append(float(value))
         elif val_type == "NUMBER":
             self.constant_data.append(value)
+        elif val_type == "ANY":
+            self.constant_data.append(value)
