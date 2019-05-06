@@ -60,10 +60,10 @@ initial_functions = {
     "iteratewhile(param)": Function("iteratewhile(param)", "EMPTY", {}, {
         "a": GroupItem("BOOLEAN", 0, None, 0),
     }),
-    "max(param)": Function("max(param)", "ANY", {}, {
+    "max(param)": Function("max(param)", "NUMBER", {}, {
         "a": GroupItem("LIST", 0, None, 0),
     }),
-    "min(param)": Function("min(param)", "ANY", {}, {
+    "min(param)": Function("min(param)", "NUMBER", {}, {
         "a": GroupItem("LIST", 0, None, 0),
     }),
     "(param)multiplyall": Function("(param)multiplyall", "NUMBER", {}, {

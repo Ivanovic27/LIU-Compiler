@@ -1,29 +1,49 @@
 x: (3)[].
-x[0]: 0.
-x[1]: 3.
-x[2]: 6.
-(x) filter ('not equal', 3).
-print(x[0], x[1], x[2]).
-print((x) length).
----
-x: (3)[].
-a: multiply all (x).
-b: subtract all (x).
-c: add all (x).
-d: sqrt (5).
-e: (x) power (8).
+x[0]: 3.
+x[1]: 6.
+x[2]: 9.
+a: (x) multiply all.
+print('Multiply All: ', a, '\n').
 
-f: max (x).
-g: min (x).
+a: (x) subtract all.
+print('Subtract All: ', a, '\n').
 
-h: (x) first.
-i: (x) last.
+a: (x) add all.
+print('Add All: ', a, '\n').
 
-j: (x) is text.
-k: (x) is number.
-m: (x) is even.
-n: (x) is odd.
-o: (x) is empty.
-p: (x) map ('multiply', 2).
-q: (x) filter ('less', 0).
----
+b: (x) first.
+print('First: ', b, '\n').
+b: (x) last.
+print('Last: ', b, '\n').
+c: (x) length.
+print('Length: ', c, '\n').
+
+x[0]: 3.
+x[1]: 6.
+x[2]: 9.
+(x) map ('divide', 3).
+(x) map ('multiply', 2).
+(x) map ('add', 5).
+print('Map: ', x[0], ', ', x[1], ', ', x[2], '\n').
+
+x[0]: 3.
+x[1]: 6.
+x[2]: 9.
+(x) filter ('less', 6).
+print('Filter: ', x[0], ', ', x[1], ', ', x[2], '\n').
+
+hello value: 'Hello World'.
+number value: 5.
+empty value: Empty.
+t: (hello value) is text.
+m: (empty value) is text.
+print('Is Text: ', t, ', ', m, '\n').
+t: (number value) is number.
+m: (hello value) is number.
+print('Is Number: ', t, ', ', m, '\n').
+t: (number value) is even.
+m: (number value) is odd.
+print('Is Even or Odd: ', t, ', ', m, '\n').
+t: (empty value) is empty.
+m: (number value) is empty.
+print('Is Empty: ', t, ', ', m, '\n').
