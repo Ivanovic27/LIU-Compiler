@@ -70,7 +70,7 @@ find value(array:(5)[],size: 0,value: Empty): {
         }.
         x: add(x,1).
     }.
-} : -1.
+} : Empty.
 
 -- Size of matrix 1 and 2
 rowsUno:2.
@@ -114,9 +114,9 @@ arr[1]: True.
 arr[2]: 'Uriel'.
 arr[3]: 15.
 arr[4]: 'Ivan'.
-res: find value(arr,size,15).
-if(not(equal(res,-1))){
-    print(arr[res],' is at position ',res,'\n').
-}else{
+res: find value(arr,size,18).
+if((res) is empty){
     print('Value does not exist \n').
+}else{
+    print(arr[res],' is at position ',res,'\n').
 }.
