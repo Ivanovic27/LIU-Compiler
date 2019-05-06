@@ -20,7 +20,7 @@ print('Length: ', c, '\n').
 
 x[0]: 3.
 x[1]: 6.
-x[2]: 9.
+x[2]: 'Uriel'.
 (x) map ('divide', 3).
 (x) map ('multiply', 2).
 (x) map ('add', 5).
@@ -28,7 +28,7 @@ print('Map: ', x[0], ', ', x[1], ', ', x[2], '\n').
 
 x[0]: 3.
 x[1]: 6.
-x[2]: 9.
+x[2]: 'Uriel'.
 (x) filter ('less', 6).
 print('Filter: ', x[0], ', ', x[1], ', ', x[2], '\n').
 

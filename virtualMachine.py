@@ -11,6 +11,8 @@ quadruples = [0]
 map_info = None
 
 # Operations
+
+
 def add_operator(left, right, virtual_direction):
     return float(get_value_direction(left)) + float(get_value_direction(right))
 
@@ -113,29 +115,36 @@ def add_all_operator(left, right, virtual_direction):
 def first_operator(left, right, virtual_direction):
     return get_value_direction(left)
 
+
 def last_operator(left, right, virtual_direction):
     size = get_value_direction(right)
     return get_value_direction(left + size - 1)
+
 
 def is_text_operator(left, right, virtual_direction):
     value = get_value_direction(left)
     return type(value) is str
 
+
 def is_number_operator(left, right, virtual_direction):
     value = get_value_direction(left)
     return type(value) is float or type(value) is int
+
 
 def is_even_operator(left, right, virtual_direction):
     value = float(get_value_direction(left))
     return (value % 2) <= 0
 
+
 def is_odd_operator(left, right, virtual_direction):
     value = float(get_value_direction(left))
     return (value % 2) > 0
 
+
 def is_empty_operator(left, right, virtual_direction):
     value = get_value_direction(left)
     return value == None
+
 
 def map_operator(left, right, virtual_direction):
     global map_info
@@ -148,7 +157,10 @@ def map_operator(left, right, virtual_direction):
         operator = str(get_value_direction(left))
         num = float(get_value_direction(right))
         for i in range(0, size):
-            previous_value = float(get_value_direction(dir + i))
+            try:
+                previous_value = float(get_value_direction(dir + i))
+            except ValueError:
+                continue
             new_value = previous_value
             if operator == 'multiply':
                 new_value *= num
@@ -174,7 +186,11 @@ def filter_operator(left, right, virtual_direction):
         num = float(get_value_direction(right))
         new_results = []
         for i in range(0, size):
-            value = float(get_value_direction(dir + i))
+            try:
+                value = float(get_value_direction(dir + i))
+            except ValueError:
+                new_results.append(get_value_direction(dir + i))
+                continue
             if (operator == 'greater' and value > num) or (operator == 'less' and value < num) or (operator == 'equal' and value == num) or (operator == 'not equal' and value != num):
                 new_results.append(value)
         for i in range(0, size):
@@ -184,8 +200,10 @@ def filter_operator(left, right, virtual_direction):
             assign_result(Operator.ASSIGN, dir + i, value)
         map_info = None
 
+
 def length_operator(left, right, virtual_direction):
     return get_value_direction(right)
+
 
 def read_operator(left, right, virtual_direction):
     return input()
