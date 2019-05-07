@@ -14,7 +14,7 @@ class GrammarErrorListener(ErrorListener):
     Name: GrammarErrorListener
     Description: Displays the errors of the executing program
     Parameters: 
-        ErrorListener, contains the error listener of ANTLR4
+        ErrorListener, contains the error arrayener of ANTLR4
     Returns: NA
     Important methods where its called: 
         - main, to send the errors and display them

@@ -6,7 +6,7 @@ from validations import *
 from Function import Function
 from Variable import Variable
 from GroupItem import GroupItem
-from utils import list_params_to_dict
+from utils import array_params_to_dict
 from Operator import Operator
 
 # Redirects to the mehtod depending on the type of quadruples a function has to generate.
@@ -16,6 +16,7 @@ types = {
     "array": gl.add_array_quadruple,
     "map": gl.add_map_quadruple
 }
+
 
 def create_variable(variable_name, literal):
     """
@@ -34,7 +35,7 @@ def create_variable(variable_name, literal):
         # Add variable if not already declared.
         new_dir = gl.get_last_data()
         if literal.type == 'LIST':
-            (size, _, _) = literal.list_info
+            (size, _, _) = literal.array_info
             literal.virtual_direction = new_dir
             literal.name = variable_name
             literal.constant_direction = memory.get_last_constant()
@@ -50,7 +51,7 @@ def create_variable(variable_name, literal):
     else:
         if literal.type == 'LIST':
             new_dir = gl.get_last_data()
-            (size, _, _) = literal.list_info
+            (size, _, _) = literal.array_info
             literal.virtual_direction = new_dir
             literal.name = variable_name
             literal.constant_direction = memory.get_last_constant()
@@ -61,11 +62,20 @@ def create_variable(variable_name, literal):
             gl.add_variable(variable_name, new_variable)
             variable = gl.get_variable(variable_name)
     if literal.type != 'LIST':
-        memory.add_assign(literal.virtual_direction, variable.virtual_direction)
+        memory.add_assign(literal.virtual_direction,
+                          variable.virtual_direction)
 
 
 def definition_function_parameters(self, ctx, parameters):
-    
+    """
+    Name: definition_function_parameters
+    Description: Gets all the parameters of a function.
+    Parameters:
+        ctx: Holds the context of the parameters rule.
+    Returns: All the parameters information of a function.
+    Important methods where its called:
+        definition_function: To hold all the parameters of the function.
+    """
     counter = 0
     new_parameters = []
     for param in parameters:
@@ -75,7 +85,7 @@ def definition_function_parameters(self, ctx, parameters):
         finish = False
         while not finish:
             found_item = False
-            for (key, attr) in param.items():
+            for (_, attr) in param.items():
                 if attr.pos == current_position:
                     attr.global_pos = counter
                     counter += 1
@@ -84,7 +94,7 @@ def definition_function_parameters(self, ctx, parameters):
                     break
             if not found_item:
                 finish = True
-    return list_params_to_dict(new_parameters)
+    return array_params_to_dict(new_parameters)
 
 
 def do_function_execution(self, ctx):
@@ -107,7 +117,7 @@ def do_function_execution(self, ctx):
         for key, parameter in parameters.items():
             if parameter.pos == group.pos and parameter.param == group.param:
                 if parameter.type == 'LIST':
-                    (_, _, size_dir) = parameter.list_info
+                    (_, _, size_dir) = parameter.array_info
                     memory.add_quadruple(
                         Operator.PARAMARR, group.virtual_direction, size_dir, parameter.virtual_direction)
                 else:
@@ -120,7 +130,17 @@ def do_function_execution(self, ctx):
     memory.add_quadruple(Operator.ASSIGN, func.return_direction, None, new_dir)
     return (new_function_name, new_dir)
 
+
 def get_id(ctx):
+    """
+    Name: get_id
+    Description: Gets the id. It can be built with spaces. Ex: 'important stuff'--> 'importantstuff'
+    Parameters:
+        ctx: Holds the context of the identification2 rule.
+    Returns: The id of what was accessed.
+    Important methods where its called:
+        identification: To access the built id.
+    """
     id = ctx.Id()
     if id != None:
         rest_id = get_id(ctx.identification2())
@@ -129,12 +149,26 @@ def get_id(ctx):
 
 
 def create_function(self, ctx, function_name, parameters, initial_virtual_direction, literal, return_direction):
+    """
+    Name: create_function
+    Description: Creates the information for the function with its corresponding quadruples.
+    Parameters:
+        ctx: Holds the context of the definition_function rule.
+        function_name: The name of the function to create.
+        parameters: The information of the parameters of the function.
+        initial_virtual_direction: The virtual direction to access after Start Proc.
+        literal: Information about the return literal.
+        return_direction: The global direction used for the return.
+    Returns: NA
+    Important methods where its called:
+        definition_function: To create the quadruples of the function.
+    """
     # Ensure the new function is not already defined
     check_defined_function(function_name)
     code_virtual_direction = memory.get_last_code() + 1
     # Add the function to the functions table
     gl.functions[function_name] = Function(
-        function_name, literal.type, {}, parameters, False, initial_virtual_direction, code_virtual_direction, return_direction, literal.list_info)
+        function_name, literal.type, {}, parameters, False, initial_virtual_direction, code_virtual_direction, return_direction, literal.array_info)
     memory.add_quadruple(Operator.PARAMEND, None, None, None)
     self.function(ctx.function())
     gl.current_scope = global_function
@@ -156,28 +190,10 @@ def get_group_variables(self, ctx, current_position=0):
     if ctx.basic_literal() != None:
         item = self.basic_literal(ctx.basic_literal())
         new_item = GroupItem(item.type, current_position,
-                             item.virtual_direction, None, item.list_info)
+                             item.virtual_direction, None, item.array_info)
         rest_items = get_group_variables(
             self, ctx.group3(), current_position + 1)
         return [new_item] + rest_items
-    return []
-
-
-def get_list_variables(self, ctx, first_direction, size, current_position = 0):
-    if ctx.extended_literal() != None:
-        item = self.extended_literal(ctx.extended_literal())
-        value_direction = first_direction + current_position
-        memory.add_assign(item.virtual_direction, value_direction)
-        if current_position >= size:
-            raise ValueError("Exceeded list size")
-        get_list_variables(self, ctx.list3(), first_direction, size, current_position + 1)
-
-def get_items(self, ctx):
-    if ctx.extended_literal() != None:
-        rest_items = get_items(self, ctx.list3())
-        item = self.extended_literal(ctx.extended_literal())
-        items = [item] + rest_items
-        return items
     return []
 
 
@@ -188,7 +204,7 @@ def prepare_arguments(self, groups, function_name):
     Parameters:
         groups: Holds all group contexts.
         function_name: The name of the function to be validated.
-    Returns: The name of the function and its arguments on a list of groups.
+    Returns: The name of the function and its arguments on a array of groups.
     Important methods where its called:
         execution_function_name: To execute a user definied function.
     """
@@ -296,13 +312,22 @@ def do_iterate_execution(self, ctx):
 
 
 def get_parameters_data(self, ctx, param_position=0):
+    """
+    Name: get_parameters_data
+    Description: Retrieves the parameters of a group of a function.
+    Parameters:
+        ctx: Holds the context of the parameters3 rule.
+    Returns: A list of all the parameters of a group.
+    Important methods where its called:
+        parameters: To get the information of the parameters of a group of a function.
+    """
     parameters = {}
     if ctx.definition() != None:
         (name, literal, direction) = self.defintion_parameter(ctx.definition())
         parameters = get_parameters_data(
             self, ctx.parameters2(), param_position + 1)
         parameters[name] = GroupItem(
-            literal.type, param_position, None, None, literal.list_info)
+            literal.type, param_position, None, None, literal.array_info)
         if literal.type == 'LIST':
             parameters[name].constant_direction = literal.constant_direction
         parameters[name].virtual_direction = direction
@@ -312,10 +337,10 @@ def get_parameters_data(self, ctx, param_position=0):
 def get_execution_data(self, ctx):
     """
     Name: get_execution_data
-    Description: Gets both the name of the executed function and a list of all the passed parameters in order.
+    Description: Gets both the name of the executed function and a array of all the passed parameters in order.
     Parameters:
         ctx: Holds the context of the execution_function_name rule.
-    Returns: The name of the function in order and its parameters on a list.
+    Returns: The name of the function in order and its parameters on a array.
     Important methods where its called:
         do_function_execution: To get the name of the function and its parameters in order
         get_execution_data: To get all the parameters
@@ -339,6 +364,16 @@ def get_execution_data(self, ctx):
 
 
 def get_definition_data(self, ctx):
+    """
+    Name: get_definition_data
+    Description: Creates and gets information about the new funtion.
+    Parameters:
+        ctx: Holds the context of the definition_function_name rule.
+    Returns: The name of the function and the context of the parameters.
+    Important methods where its called:
+        definition_function_name: To create information about the function.
+        get_definition_data: To get all the parameters on the definition
+    """
     id = ""
     parameters = []
     if ctx.identification() != None or ctx.parameters() != None:
@@ -377,12 +412,12 @@ def create_literal(self, ctx):
     elif ctx.execution() != None:
         (function_name, virtual_direction) = self.execution(ctx.execution())
         exection_type = gl.functions[function_name].type
-        list_info = gl.functions[function_name].return_list_info
+        array_info = gl.functions[function_name].return_array_info
         if virtual_direction == None:
             return_direction = gl.functions[function_name].return_direction
-        else: 
+        else:
             return_direction = virtual_direction
-        return Variable("", exection_type, return_direction, list_info)
+        return Variable("", exection_type, return_direction, array_info)
     elif ctx.String() != None:
         memory.add_constant(ctx.String().getText(), "STRING")
         return Variable("", "STRING", memory.get_last_constant() - 1)

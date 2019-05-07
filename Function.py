@@ -1,14 +1,6 @@
 class Function:
-    name = ""
-    type = ""
-    variables = {}
-    parameters = {}
-    infiniteParams = False
-    virtual_directon = None
-    return_direction = None
-    code_direction = None
 
-    def __init__(self, name, type, variables, parameters, infiniteParams=False, virtual_directon=None, code_direction=None, return_direction=None, return_list_info=None):
+    def __init__(self, name, type, variables, parameters, infiniteParams=False, virtual_directon=None, code_direction=None, return_direction=None, return_array_info=None):
         self.name = name
         self.type = type
         self.variables = variables
@@ -17,4 +9,4 @@ class Function:
         self.virtual_directon = virtual_directon
         self.code_direction = code_direction
         self.return_direction = return_direction
-        self.return_list_info = return_list_info
+        self.return_array_info = return_array_info

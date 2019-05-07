@@ -6,6 +6,11 @@ from Group import Group
 
 
 class SemanticAnalyzer(LiuGrammarListener):
+    """
+    Name: SemanticAnalyzer
+    Description: Has all the main rules used in antlr4 for semantic analysis.
+    """
+
     def enterProgram(self, ctx):
         """
         Name: enterProgram
@@ -109,7 +114,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         variable = gl.get_variable(variable_name)
         registry = None
         if variable != None:
-            (size, i, _) = variable.list_info
+            (size, i, _) = variable.array_info
             if len(items) > len(i):
                 raise ValueError("Array out of bounds")
             previous_aux = None
@@ -254,7 +259,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         literal = self.extended_literal(ctx.extended_literal())
         return_direction = memory.get_last_global()
         if literal.type == 'LIST':
-            (size, _, _) = literal.list_info
+            (size, _, _) = literal.array_info
             literal.virtual_direction = return_direction
             literal.constant_direction = memory.get_last_constant()
             memory.add_constant(return_direction, 'NUMBER')
@@ -306,6 +311,15 @@ class SemanticAnalyzer(LiuGrammarListener):
         return literal
 
     def array(self, ctx):
+        """
+        Name: array
+        Description: Gets info from an array.
+        Parameters:
+            ctx: Holds the context of the array rule.
+        Returns: Information about an array.
+        Important methods where its called:
+            extended_literal: To get the information about the array literal.
+        """
         item = int(ctx.Number().getText())
         rest_items = self.array_dimension(ctx.array_dimension())
         items = [item] + rest_items
@@ -323,6 +337,15 @@ class SemanticAnalyzer(LiuGrammarListener):
         return Variable("", "LIST", None, (size, final_items, new_dir))
 
     def array_dimension(self, ctx):
+        """
+        Name: array_dimension
+        Description: Gets the array dimensions that wants to be created.
+        Parameters:
+            ctx: Holds the context of the array_dimension.
+        Returns: A list of size dimensions.
+        Important methods where its called:
+            array: To get the size of dimensions of an array declaration.
+        """
         items = []
         if ctx.Number() != None:
             item = int(ctx.Number().getText())
@@ -343,12 +366,6 @@ class SemanticAnalyzer(LiuGrammarListener):
         variables = get_group_variables(self, ctx.group2())
         return Group("", "GROUP", variables)
 
-    def terminal_definition(self, ctx):
-        id = self.identification(ctx.identification())
-        info = self.basic_literal(ctx.basic_literal())
-        info.name = id
-        return info
-
     def basic_literal(self, ctx):
         """
         Name: basic_literal
@@ -366,13 +383,40 @@ class SemanticAnalyzer(LiuGrammarListener):
         return create_literal(self, ctx)
 
     def definition_function_name(self, ctx):
+        """
+        Name: definition_function_name
+        Description: Creates a new function.
+        Parameters:
+            ctx: Holds the context of the definition_function_name rule.
+        Returns: The name of the function and its parameters info.
+        Important methods where its called:
+            definition: To create a new function.
+        """
         check_global_function()
         return get_definition_data(self, ctx)
 
     def parameters(self, ctx):
+        """
+        Name: parameters
+        Description: Gets all the parameters the group of a function.
+        Parameters:
+            ctx: Holds the context of the parameters rule.
+        Returns: The name of the function and its parameters info of a group.
+        Important methods where its called:
+            definition_function_parameters: To access all the parameters of a function.
+        """
         return get_parameters_data(self, ctx.parameters3())
 
     def defintion_parameter(self, ctx):
+        """
+        Name: defintion_parameter
+        Description: Generates quadruples for parameters of a function with its default value.
+        Parameters:
+            ctx: Holds the context of the definition_function rule.
+        Returns: NA
+        Important methods where its called:
+            get_parameters_data: To access information about a parameter.
+        """
         variable_name = self.identification(ctx.identification())
         literal = self.extended_literal(ctx.extended_literal())
         new_dir = gl.get_last_data()
@@ -381,8 +425,8 @@ class SemanticAnalyzer(LiuGrammarListener):
             new_dir = gl.get_last_data()
             literal.constant_direction = memory.get_last_constant()
             memory.add_constant(new_dir, 'NUMBER')
-            (size, _, _) = literal.list_info
-            for i in range(0, size):
+            (size, _, _) = literal.array_info
+            for _ in range(0, size):
                 gl.add_memory(None)
         else:
             memory.add_assign(literal.virtual_direction, new_dir)

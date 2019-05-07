@@ -3,6 +3,16 @@ from preloaded_data import global_function
 
 
 def check_return_type(function, return_literal):
+    """
+    Name: check_return_type
+    Description: Validates that the return type is the same as the one previously defined.
+    Parameters:
+        function: The function that is beeing accessed.
+        return_literal: The literal that was returned.
+    Returns: Throws error if not correctly.
+    Important methods where its called:
+        return_statement: To validate the return type is correct.
+    """
     if function.type != 'ANY' and return_literal.type != 'ANY' and function.type != None and function.type != return_literal.type:
         raise ValueError("Return type of function '" +
                          gl.current_scope + "' is of type " + str(function.type))
@@ -10,6 +20,15 @@ def check_return_type(function, return_literal):
 
 
 def check_defined_function(function_name):
+    """
+    Name: check_defined_function
+    Description: Validates that the accessed function exists.
+    Parameters:
+        function_name: The name of the function to validate.
+    Returns: Throws error if not correctly.
+    Important methods where its called:
+        create_function: To check the defined function is a new one.
+    """
     if function_name in gl.functions:
         raise ValueError("The function '" + function_name +
                          "' is already defined")
@@ -48,20 +67,46 @@ def check_function_match(arguments, function_name):
 
 
 def check_variable_exits(id):
-    # Check if the accessed variable exists
+    """
+    Name: check_variable_exits
+    Description: Validates that the accessed variable exists.
+    Parameters:
+        id: The variable name to check if exists globally or locally.
+    Returns: Throws error if not correctly.
+    Important methods where its called:
+        create_literal: To check if accessed literal exists as a variable.
+        array_access: To check if an accessed array exists as a variable.
+    """
     if id not in gl.get_all_variables():
         raise ValueError(
             "'" + id + "' is not declared as a definition.")
 
 
 def check_global_function():
+    """
+    Name: check_global_function
+    Description: Validates that the function is globally declared.
+    Parameters:
+    Returns: Throws error if not correctly.
+    Important methods where its called:
+        definition_function_name: To check when defining a new function.
+    """
     if gl.current_scope != global_function:
         raise ValueError(
             "Function cannot be declared inside another function")
 
 
 def check_variable_type(variable_name, literal):
-    # Check if the new variable type is different from the one already defined
+    """
+    Name: check_variable_type
+    Description: Validates that the the new variable type is the same as the one already defined.
+    Parameters:
+        variable_name: The variable to check if is the same type.
+        literal: The literal with a certain type.
+    Returns: Throws error if not correctly.
+    Important methods where its called:
+        create_variable: To check the type when assinging the a value to the variable.
+    """
     if variable_name in gl.get_all_variables():
         if gl.get_all_variables()[variable_name].type != 'ANY' and literal.type != 'ANY':
             if gl.get_all_variables()[variable_name].type != literal.type:

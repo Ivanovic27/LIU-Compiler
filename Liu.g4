@@ -27,10 +27,6 @@ array_access2
 array_access3
   : (Coma basic_literal array_access3)?
   ;
-
-terminal_definition
-  : identification Colon basic_literal
-  ;
 execution
   : if_execution | iterate_execution
   | add_execution | subtract_execution | divide_execution | multiply_execution

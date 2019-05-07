@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class Operator(Enum):
+    """
+    Name: Operator
+    Description: Used to create operators for quadruples.
+    """
     ASSIGN = 0
     GOTO = 1
     GOTOF = 2

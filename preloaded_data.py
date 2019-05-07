@@ -4,6 +4,7 @@ from Operator import Operator
 
 global_function = "global-function"
 initial_scope = "global-function"
+# Contains all the common functions for the language, including operations and special functions.
 initial_functions = {
     "global-function": Function("global-function", "EMPTY", {}, {}),
     "add(param)": Function("add(param)", "NUMBER", {}, {
@@ -110,6 +111,7 @@ initial_functions = {
         "a": GroupItem("LIST", 0, None, 0),
     }),
 }
+# maps all the rules for executions in atlr4 to a type of oepration and a type of behaviour for the quadruples.
 mapping_functions = {
     "add_execution": {"name": "add(param)", "type": "both", "operation": Operator.SUM},
     "subtract_execution": {"name": "subtract(param)", "type": "both", "operation": Operator.SUBTRACT},
