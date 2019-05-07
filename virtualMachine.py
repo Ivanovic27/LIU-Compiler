@@ -126,7 +126,13 @@ def equal_operator(left, right, virtual_direction):
     Returns: The result of a equal operation of the value on the left and right virtual direction values
     Important methods where its called: Called with Operator.EQUAL
     """
-    return (get_value_direction(left) == get_value_direction(right))
+    value = None
+    try:
+        value = float(get_value_direction(left)) == float(get_value_direction(right))
+    except:
+        value = get_value_direction(left) == get_value_direction(right)
+    finally:
+        return value
 
 
 def greater_operator(left, right, virtual_direction):
@@ -457,7 +463,11 @@ def read_operator(left, right, virtual_direction):
     Returns: The input of the user
     Important methods where its called: Called with Operator.READ
     """
-    return input()
+    value = input()
+    try:
+        value = float(value)
+    finally:
+        return value
 
 
 def print_operator(left, right, virtual_direction):
