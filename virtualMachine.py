@@ -601,7 +601,7 @@ def ver_operator(left, right, virtual_direction):
     """
     a = get_value_direction(left)
     if a < right or a > virtual_direction:
-        raise ValueError("Array off limits")
+        raise ValueError("Array with index '" + str(int(a)) + "' out of bounds.")
 
 
 goto_operators = [Operator.GOTOF, Operator.GOTO, Operator.ERA,

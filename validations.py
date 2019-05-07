@@ -16,7 +16,8 @@ def check_return_type(function, return_literal):
     if function.type != 'ANY' and return_literal.type != 'ANY' and function.type != None and function.type != return_literal.type:
         raise ValueError("Return type of function '" +
                          gl.current_scope + "' is of type " + str(function.type))
-    function.type = return_literal.type
+    if function.type != 'ANY' and return_literal.type != 'ANY':
+        function.type = return_literal.type
 
 
 def check_defined_function(function_name):

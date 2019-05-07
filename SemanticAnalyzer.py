@@ -116,7 +116,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         if variable != None:
             (size, i, _) = variable.array_info
             if len(items) > len(i):
-                raise ValueError("Array out of bounds")
+                raise ValueError("The dimensions of array '" + variable_name + "' do not match.")
             previous_aux = None
             current_aux = None
             for (index, x) in enumerate(i):
