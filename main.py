@@ -8,40 +8,47 @@ from globals import (global_data as gl, memory)
 from preloaded_data import global_function
 from antlr4.error.ErrorListener import ErrorListener
 
-# TODO: Merge get_execution_data and get_definition_data
-# TODO: Move create_variable to another file.
-# TODO: Print remove extra memory added.
-# TODO: Add negative numbers.
 
-class MyErrorListener( ErrorListener ):
+class GrammarErrorListener(ErrorListener):
+    """
+    Name: GrammarErrorListener
+    Description: Displays the errors of the executing program
+    Parameters: 
+        ErrorListener, contains the error listener of ANTLR4
+    Returns: NA
+    Important methods where its called: 
+        - main, to send the errors and display them
+    """
+
     def __init__(self):
-        super(MyErrorListener, self).__init__()
+        super(GrammarErrorListener, self).__init__()
 
     def syntaxError(self, recognizer, offendingSymbol, line, column, msg, e):
-        message = 'ERROR in line {0}, column {1}: {2}'.format(line, column, msg)
+        """
+        Formats the error to show the message, line and column.
+        """
+        message = 'ERROR in line {0}, column {1}: {2}'.format(
+            line, column, msg)
         raise Exception(message)
 
-    def reportAmbiguity(self, recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs):
-        # raise Exception("Oh no!!")
-        pass
-
-    def reportAttemptingFullContext(self, recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs):
-        # raise Exception("Oh no!!")
-        pass
-
-    def reportContextSensitivity(self, recognizer, dfa, startIndex, stopIndex, prediction, configs):
-        # raise Exception("Oh no!!")
-        pass
 
 def main(argv):
+    """
+    Name: main
+    Description: Compiles and exectues the generated code from a file.
+    Parameters:
+        argv[1]: Contains the name of the file to compile and execute.
+    Returns: NA
+    Important methods where its called: NA
+    """
     try:
         file_name = argv[1]
         input = FileStream(file_name)
         lexer = LiuLexer(input)
-        lexer._listeners = [MyErrorListener()]
+        lexer._listeners = [GrammarErrorListener()]
         stream = CommonTokenStream(lexer)
         parser = LiuParser(stream)
-        parser._listeners = [MyErrorListener()]
+        parser._listeners = [GrammarErrorListener()]
         tree = parser.program()
         semantic = SemanticAnalyzer()
         walker = ParseTreeWalker()

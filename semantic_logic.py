@@ -9,6 +9,7 @@ from GroupItem import GroupItem
 from utils import list_params_to_dict
 from Operator import Operator
 
+# Redirects to the mehtod depending on the type of quadruples a function has to generate.
 types = {
     "both": gl.add_continuous_quadruples,
     "left": gl.add_left_quadruples,
@@ -17,6 +18,16 @@ types = {
 }
 
 def create_variable(variable_name, literal):
+    """
+    Name: create_variable
+    Description: Creates a variable in the current scope.
+    Parameters:
+        variable_name: The name of the variable to create.
+        literal: The information of the content of the variable.
+    Returns: NA
+    Important methods where its called:
+        definition_variable: To define an array or variable.
+    """
     check_variable_type(variable_name, literal)
     variable = gl.get_variable(variable_name)
     if not variable:
@@ -29,18 +40,32 @@ def create_variable(variable_name, literal):
             literal.constant_direction = memory.get_last_constant()
             memory.add_constant(new_dir, 'NUMBER')
             new_variable = literal
-            for i in range(0, size):
+            for _ in range(0, size):
                 gl.add_memory(None)
         else:
             gl.add_memory(None)
             new_variable = Variable(variable_name, literal.type, new_dir)
         gl.add_variable(variable_name, new_variable)
         variable = gl.get_variable(variable_name)
+    else:
+        if literal.type == 'LIST':
+            new_dir = gl.get_last_data()
+            (size, _, _) = literal.list_info
+            literal.virtual_direction = new_dir
+            literal.name = variable_name
+            literal.constant_direction = memory.get_last_constant()
+            memory.add_constant(new_dir, 'NUMBER')
+            new_variable = literal
+            for _ in range(0, size):
+                gl.add_memory(None)
+            gl.add_variable(variable_name, new_variable)
+            variable = gl.get_variable(variable_name)
     if literal.type != 'LIST':
         memory.add_assign(literal.virtual_direction, variable.virtual_direction)
 
 
 def definition_function_parameters(self, ctx, parameters):
+    
     counter = 0
     new_parameters = []
     for param in parameters:
@@ -63,9 +88,18 @@ def definition_function_parameters(self, ctx, parameters):
 
 
 def do_function_execution(self, ctx):
+    """
+    Name: do_function_execution
+    Description: Generates quadruples for user defined function calls.
+    Parameters:
+        ctx: Holds the context of the execution_function_name rule.
+    Returns: The name of the function and its returned direction.
+    Important methods where its called:
+        execution_function_name: To execute a user definied function.
+    """
     (function_name, grps) = get_execution_data(self, ctx)
     func = gl.functions[function_name]
-    (new_function_name, groups) = do_execution(
+    (new_function_name, groups) = prepare_arguments(
         self, grps, function_name)
     memory.add_quadruple(Operator.ERA, func.virtual_directon, None, None)
     parameters = gl.functions[function_name].parameters
@@ -109,8 +143,18 @@ def create_function(self, ctx, function_name, parameters, initial_virtual_direct
 
 
 def get_group_variables(self, ctx, current_position=0):
-    if ctx.literal() != None:
-        item = self.literal(ctx.literal())
+    """
+    Name: get_group_variables
+    Description: Compiles part of the arguments of a function call.
+    Parameters:
+        ctx: Holds the context of the group2/group3 rule.
+    Returns: NA
+    Important methods where its called:
+        get_group_variables: To get all the arguments inside a group
+        group: Get the variables inside a group.
+    """
+    if ctx.basic_literal() != None:
+        item = self.basic_literal(ctx.basic_literal())
         new_item = GroupItem(item.type, current_position,
                              item.virtual_direction, None, item.list_info)
         rest_items = get_group_variables(
@@ -137,33 +181,66 @@ def get_items(self, ctx):
     return []
 
 
-def do_execution(self, groups, function_name):
-    parameters = []
+def prepare_arguments(self, groups, function_name):
+    """
+    Name: prepare_arguments
+    Description: Gets the data needed for all arguments.
+    Parameters:
+        groups: Holds all group contexts.
+        function_name: The name of the function to be validated.
+    Returns: The name of the function and its arguments on a list of groups.
+    Important methods where its called:
+        execution_function_name: To execute a user definied function.
+    """
+    arguments = []
     for index, group in enumerate(groups):
-        current_parameters = self.group(group)
-        current_parameters = current_parameters.variables
-        for parameter in current_parameters:
+        current_arguments = self.group(group)
+        current_arguments = current_arguments.variables
+        for parameter in current_arguments:
             parameter.param = index
-        parameters.extend(current_parameters)
-    check_function_exists(parameters, function_name)
-    return (function_name, parameters)
+        arguments.extend(current_arguments)
+    check_function_match(arguments, function_name)
+    return (function_name, arguments)
 
 
 def do_default_execution(self, ctx):
+    """
+    Name: do_default_execution
+    Description: Generates the quadruples for common functions.
+    Parameters:
+        ctx: Holds the context of the execution rule.
+    Returns: Returns the name of the function and the last virtual direction.
+    Important methods where its called:
+        execution: To execute common functions.
+    """
+    # Iterate all mapping functions until it finds one that exists in context
     for name, operation in mapping_functions.items():
         if getattr(ctx, name) and getattr(ctx, name)() != None:
             new_ctx = getattr(ctx, name)()
             groups = new_ctx.group()
             if not isinstance(groups, (list)):
                 groups = [new_ctx.group()]
-            (function_name, parameters) = do_execution(
+            (function_name, parameters) = prepare_arguments(
                 self, groups, operation["name"])
-            return (function_name, types[operation["type"]](operation["operation"], parameters))
+            quadruple_function = types[operation["type"]]
+            direction = quadruple_function(operation["operation"], parameters)
+            return (function_name, direction)
 
 
 def do_if_execution(self, ctx):
-    (_, parameters) = do_execution(
-        self, [ctx.group()], "if(param)")
+    """
+    Name: do_if_execution
+    Description: Generates the quadruples for the if statement.
+    Parameters:
+        ctx: Holds the context of the if_execution rule.
+    Returns: NA
+    Important methods where its called:
+        if_execution: To execute an if statement.
+        do_else_execution: To execute an if statement after an else.
+    """
+    function_name = "if(param)"
+    (_, parameters) = prepare_arguments(
+        self, [ctx.group()], function_name)
     condition_dir = parameters[0].virtual_direction
     memory.add_gotoFalse(condition_dir)
     gl.add_jump(-1)
@@ -172,6 +249,15 @@ def do_if_execution(self, ctx):
 
 
 def do_else_execution(self, ctx):
+    """
+    Name: do_else_execution
+    Description: Generates the quadruples for the else statement.
+    Parameters:
+        ctx: Holds the context of the else_execution rule.
+    Returns: NA
+    Important methods where its called:
+        else_execution: To execute an else statement.
+    """
     if ctx.Else() != None:
         else_dir = gl.pending_jumps.pop()
         memory.fill_jump(else_dir, 1)
@@ -186,9 +272,19 @@ def do_else_execution(self, ctx):
 
 
 def do_iterate_execution(self, ctx):
+    """
+    Name: do_iterate_execution
+    Description: Generates the quadruples for a while iterate statement.
+    Parameters:
+        ctx: Holds the context of the iterate_execution rule.
+    Returns: NA
+    Important methods where its called:
+        iterate_execution: To execute an iterate statement.
+    """
+    function_name = "iteratewhile(param)"
     gl.add_jump()
-    (_, parameters) = do_execution(
-        self, [ctx.group()], "iteratewhile(param)")
+    (_, parameters) = prepare_arguments(
+        self, [ctx.group()], function_name)
     condition_dir = parameters[0].virtual_direction
     memory.add_gotoFalse(condition_dir)
     gl.add_jump(-1)
@@ -214,6 +310,16 @@ def get_parameters_data(self, ctx, param_position=0):
 
 
 def get_execution_data(self, ctx):
+    """
+    Name: get_execution_data
+    Description: Gets both the name of the executed function and a list of all the passed parameters in order.
+    Parameters:
+        ctx: Holds the context of the execution_function_name rule.
+    Returns: The name of the function in order and its parameters on a list.
+    Important methods where its called:
+        do_function_execution: To get the name of the function and its parameters in order
+        get_execution_data: To get all the parameters
+    """
     id = ""
     groups = []
     if ctx.identification() != None or ctx.group() != None:
@@ -252,13 +358,21 @@ def get_definition_data(self, ctx):
 
 
 def create_literal(self, ctx):
+    """
+    Name: create_literal
+    Description: Gets or creates a literal adding it to memory (if needed).
+    Parameters:
+        ctx: Holds the context of the basic_literal rule.
+    Returns: Information about a basic literal (string, number, etc).
+    Important methods where its called:
+        basic_literal: To create and get the information of a literal.
+    """
     if ctx.identification() != None:
         id = self.identification(ctx.identification())
         check_variable_exits(id)
         return gl.get_all_variables()[id]
-    elif ctx.array_execution() != None:
-        (id, direction) = self.array_execution(ctx.array_execution())
-        # check_variable_exits(id)
+    elif ctx.array_access() != None:
+        (id, direction) = self.array_access(ctx.array_access())
         return Variable("", 'ANY', direction)
     elif ctx.execution() != None:
         (function_name, virtual_direction) = self.execution(ctx.execution())

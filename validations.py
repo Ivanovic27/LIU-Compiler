@@ -15,21 +15,31 @@ def check_defined_function(function_name):
                          "' is already defined")
 
 
-def check_function_exists(table, function_name):
-    for row in table:
+def check_function_match(arguments, function_name):
+    """
+    Name: check_function_match
+    Description: Checks if the name of the function and its parameters match.
+    Parameters:
+        arguments: Holds all the arguments of the function. 
+        function_name: The name of the function to be validated.
+    Returns: NA.
+    Important methods where its called:
+        execution_function_name: To execute a user definied function.
+    """
+    for argument in arguments:
         parameters = gl.functions[function_name].parameters
-        not_match = False
+        match = False
         if gl.functions[function_name].infiniteParams:
             id = next(iter(parameters))
-            not_match = parameters[
-                id].type == 'ANY' or row.type == 'ANY' or parameters[
-                id].type == row.type
+            match = parameters[
+                id].type == 'ANY' or argument.type == 'ANY' or parameters[
+                id].type == argument.type
         else:
-            for key, parameter in parameters.items():
-                if parameter.type == 'ANY' or row.type == 'ANY' or parameter.pos == row.pos and parameter.type == row.type and parameter.param == row.param:
-                    not_match = True
+            for _, parameter in parameters.items():
+                if parameter.type == 'ANY' or argument.type == 'ANY' or parameter.pos == argument.pos and parameter.type == argument.type and parameter.param == argument.param:
+                    match = True
                     break
-        if not_match == False:
+        if not match:
             raise ValueError("Parameters of function '" +
                              function_name + "' do not match")
     # Check that function does not exist

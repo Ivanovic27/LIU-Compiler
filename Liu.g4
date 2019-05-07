@@ -10,7 +10,7 @@ instruction
   : definition | execution | return_statement
   ;
 definition
-  : identification Colon extended_literal | definition_function_name Colon function Colon extended_literal | array_execution Colon extended_literal
+  : identification Colon extended_literal | definition_function_name Colon function Colon extended_literal | array_access Colon extended_literal
   ;
 identification
   : Id identification2
@@ -18,14 +18,14 @@ identification
 identification2
   : (Id identification2)?
   ;
-array_execution
-  : identification array_access
-  ;
 array_access
-  : (Left_bracket basic_literal array_access2 Right_bracket)?
+  : identification array_access2
   ;
 array_access2
-  : (Coma basic_literal array_access2)?
+  : (Left_bracket basic_literal array_access3 Right_bracket)?
+  ;
+array_access3
+  : (Coma basic_literal array_access3)?
   ;
 
 terminal_definition
@@ -144,7 +144,7 @@ execution_function_name2
   : (identification execution_function_name2 | group execution_function_name2)?
   ;
 return_statement
-  : Return basic_literal | Return group
+  : Return basic_literal
   ;
 definition_function_name
   : identification parameters definition_function_name2 | parameters identification definition_function_name2
@@ -162,13 +162,10 @@ parameters3
   : (definition parameters2)?
   ;
 extended_literal
-  : literal | list1
+  : basic_literal | array
   ;
 basic_literal
-  : String | Number | Boolean | execution | identification | array_execution | Empty
-  ;
-literal
-  : basic_literal | terminal_definition
+  : String | Number | Boolean | execution | identification | array_access | Empty
   ;
 function
   : Left_curly_braces function_code Right_curly_braces 
@@ -177,16 +174,16 @@ group
   : Left_par group2 Right_par
   ;
 group2
-  : (literal group3)?
+  : (basic_literal group3)?
   ;
 group3
-  : (Coma literal group3)?
+  : (Coma basic_literal group3)?
   ;
-list1
-  : Left_par Number list_dimension Right_par Left_bracket Right_bracket
+array
+  : Left_par Number array_dimension Right_par Left_bracket Right_bracket
   ;
-list_dimension
-  : (Coma Number list_dimension)?
+array_dimension
+  : (Coma Number array_dimension)?
   ;
 
 Empty           :'Empty';
