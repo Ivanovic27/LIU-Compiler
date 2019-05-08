@@ -53,11 +53,11 @@ def main(argv):
         semantic = SemanticAnalyzer()
         walker = ParseTreeWalker()
         walker.walk(semantic, tree)
-        # execute_program()
+        execute_program()
         # gl.print_function(global_function)
         # gl.print_globals()
         # gl.print_constants()
-        gl.print_quadruples()
+        # gl.print_quadruples()
     except BaseException as e:
         print(e)
         sys.exit()

@@ -1,14 +1,40 @@
-iterate fibonacci(n: 0): {
-    a: 0.
-    b: 1.
-    i: 1.
-    iterate while (less(i, n)) {
-        temp: a.
-        a: b.
-        b: add(temp, b).
-        i: add(i, 1).
+bubble sort(array:(5)[],size: 5): {
+    print('---- Before Sort---- \n').
+    i: 0.
+    iterate while (less(i,size)){
+        print(array[i],' ').
+        i: add(i,1).
     }.
-    return b.
+    print('\n').
+    i: 0.
+    j: 0.
+    iterate while(less(i,subtract(size,1))){
+        j:0.
+        iterate while(less(j,subtract(size,i,1))){
+            if(greater(array[j],array[add(j,1)])){
+                temp: array[j].
+                array[j]: array[add(j,1)].
+                array[add(j,1)]: temp. 
+            }.
+            j: add(j,1).
+        }.
+        i: add(i,1).
+    }.
+    i: 0.
+    print('---- After Sort ---- \n').
+    iterate while (less(i,size)){
+        print(array[i],' ').
+        i: add(i,1).
+    }.
+    print('\n').
 } : 0.
-y: read().
-print('Fibonacci Iterate: ', iterate fibonacci(y), '\n').
+
+-- Sort an array
+arr:(5)[].
+size: 5.
+arr[0]: 12.
+arr[1]: 7.
+arr[2]: 3.
+arr[3]: 10.
+arr[4]: 1.
+bubble sort(arr,size).1

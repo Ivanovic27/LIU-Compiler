@@ -1,0 +1,19 @@
+employees: (4)[].
+employees[0]: 'Ivan'.
+employees[1]: 5000.
+employees[2]: 'Uriel'.
+employees[3]: 8000.
+
+raise (name: '') salary by (amount: 0): {
+  i: 0.
+  iterate while (less(i, (employees) length)) {
+    if(equal(employees[i], name)) {
+      employees[add(i, 1)]: add(employees[add(i, 1)], amount).
+      return employees[add(i, 1)].
+    }.
+    i: add(i, 1).
+  }.
+} : 0.
+
+new salary: raise ('Ivan') salary by (1000).
+print('New salary: ', new salary).

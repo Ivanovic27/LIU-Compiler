@@ -124,7 +124,6 @@ def do_function_execution(self, ctx):
                     memory.add_quadruple(
                         Operator.PARAM, group.virtual_direction, None, parameter.virtual_direction)
     memory.add_quadruple(Operator.GOSUB, func.code_direction, None, None)
-    # aqui
     new_dir = gl.get_last_data()
     gl.add_memory(None)
     memory.add_quadruple(Operator.ASSIGN, func.return_direction, None, new_dir)
@@ -378,13 +377,16 @@ def get_definition_data(self, ctx):
     parameters = []
     if ctx.identification() != None or ctx.parameters() != None:
         if ctx.identification() != None and ctx.children[0] == ctx.identification():
+            # Adds part of the id
             id += self.identification(ctx.identification())
         if ctx.parameters() != None:
             id += "(param)"
             parameter = ctx.parameters()
             parameters = [parameter]
         if ctx.identification() != None and ctx.children[0] != ctx.identification():
+            # Adds part of the id
             id += self.identification(ctx.identification())
+        # Recursively get the rest of the id and parameters
         (rest_id, rest_parameters) = get_definition_data(
             self, ctx.definition_function_name2())
         parameters = parameters + rest_parameters
