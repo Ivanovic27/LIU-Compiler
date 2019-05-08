@@ -10,7 +10,7 @@ instruction
   : definition | execution | return_statement
   ;
 definition
-  : identification Colon extended_literal | definition_function_name Colon function Colon extended_literal | array_access Colon extended_literal
+  : identification Colon extended_literal | definition_function_name Colon function Colon extended_literal | array_access Colon basic_literal
   ;
 identification
   : Id identification2

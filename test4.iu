@@ -1,2 +1,14 @@
-a: (3)[].
-a[3]: ''.
+iterate fibonacci(n: 0): {
+    a: 0.
+    b: 1.
+    i: 1.
+    iterate while (less(i, n)) {
+        temp: a.
+        a: b.
+        b: add(temp, b).
+        i: add(i, 1).
+    }.
+    return b.
+} : 0.
+y: read().
+print('Fibonacci Iterate: ', iterate fibonacci(y), '\n').

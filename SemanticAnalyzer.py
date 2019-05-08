@@ -91,7 +91,7 @@ class SemanticAnalyzer(LiuGrammarListener):
         if ctx.definition_function_name():
             self.definition_function(ctx)
         elif ctx.array_access():
-            literal = self.extended_literal(ctx.extended_literal())
+            literal = self.basic_literal(ctx.basic_literal())
             (variable_name, registry) = self.array_access(ctx.array_access())
             memory.add_assign(literal.virtual_direction, registry)
         else:
